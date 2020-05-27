@@ -51,11 +51,11 @@ object GeneratedAgent1 {
       ,
       Struct.of("greet",Term.createTerm("'far_friendly'"),Term.createTerm("'HIIIIII'"))
       ,
-      Struct.of("distance",Struct.of("alice",Array[Term]()),Number.of(8.0))
+      Struct.of("distance",Struct.of("alice",Array[Term]()),Number.of(3.0))
       ,
-      Struct.of("distance",Term.createTerm("'bob'"),Number.of(1.0))
+      Struct.of("distance",Term.createTerm("'bob'"),Number.of(10.0))
       ,
-      Struct.of("distance",Term.createTerm("'charlie'"),Number.of(10.0))
+      Struct.of("distance",Term.createTerm("'charlie'"),Number.of(8.0))
 
     )
 
@@ -110,13 +110,13 @@ object GeneratedAgent1 {
 
     def plan0(executionContext: ExecutionContext, vars: mutable.HashMap[String,Term]): Unit = {
 
-      say_distance.execute(executionContext,say_distance.Parameters(List( VarManager.bindVar("D", vars)  )))
+      say_distance.execute(executionContext,say_distance.Parameters(List( VarManager.bindVar("Y", vars) , VarManager.bindVar("D", vars)  )))
       PrimitiveAction.execute(executionContext,PrimitiveAction.Parameters(() => println( VarManager.bindVar("X", vars) , VarManager.bindVar("Y", vars)  )))
 
     }
     def plan1(executionContext: ExecutionContext, vars: mutable.HashMap[String,Term]): Unit = {
 
-      say_distance.execute(executionContext,say_distance.Parameters(List( VarManager.bindVar("D", vars)  )))
+      say_distance.execute(executionContext,say_distance.Parameters(List( VarManager.bindVar("Y", vars) , VarManager.bindVar("D", vars)  )))
       PrimitiveAction.execute(executionContext,PrimitiveAction.Parameters(() => println( VarManager.bindVar("X", vars) , VarManager.bindVar("Y", vars)  )))
 
     }
@@ -128,11 +128,12 @@ object GeneratedAgent1 {
     case class Parameters(l_params: List[Term]) extends IParams {}
 
     def execute(executionContext: ExecutionContext, params: Parameters): Unit = {
-      var D = params.l_params(0)
+      var Y = params.l_params(0)
+      var D = params.l_params(1)
       var vars = new mutable.HashMap[String,Term]
       //plan 0
       vars.clear()
-      vars +=( "D" -> params.l_params(0) )
+      vars +=( "Y" -> params.l_params(0), "D" -> params.l_params(1) )
       val r0 = executionContext.beliefBase.query(Struct.of("==",VarManager.bindVar("D", vars),Number.of(10.0)))
 
       if (r0.result) {
@@ -142,7 +143,7 @@ object GeneratedAgent1 {
       }
       //plan 1
       vars.clear()
-      vars +=( "D" -> params.l_params(0) )
+      vars +=( "Y" -> params.l_params(0), "D" -> params.l_params(1) )
       val r1 = executionContext.beliefBase.query(Struct.of(">=",VarManager.bindVar("D", vars),Number.of(5.0)))
 
       if (r1.result) {
@@ -152,7 +153,7 @@ object GeneratedAgent1 {
       }
       //plan 2
       vars.clear()
-      vars +=( "D" -> params.l_params(0) )
+      vars +=( "Y" -> params.l_params(0), "D" -> params.l_params(1) )
       val r2 = executionContext.beliefBase.query(Struct.of("<",VarManager.bindVar("D", vars),Number.of(5.0)))
 
       if (r2.result) {
@@ -166,17 +167,17 @@ object GeneratedAgent1 {
 
     def plan0(executionContext: ExecutionContext, vars: mutable.HashMap[String,Term]): Unit = {
 
-      PrimitiveAction.execute(executionContext,PrimitiveAction.Parameters(() => println( Term.createTerm("'So far away!'") , VarManager.bindVar("D", vars)  )))
+      PrimitiveAction.execute(executionContext,PrimitiveAction.Parameters(() => println( VarManager.bindVar("Y", vars) , Term.createTerm("'is So far away! at'") , VarManager.bindVar("D", vars)  )))
 
     }
     def plan1(executionContext: ExecutionContext, vars: mutable.HashMap[String,Term]): Unit = {
 
-      PrimitiveAction.execute(executionContext,PrimitiveAction.Parameters(() => println( Term.createTerm("'far'") , VarManager.bindVar("D", vars)  )))
+      PrimitiveAction.execute(executionContext,PrimitiveAction.Parameters(() => println( VarManager.bindVar("Y", vars) , Term.createTerm("'is a bit far, at'") , VarManager.bindVar("D", vars)  )))
 
     }
     def plan2(executionContext: ExecutionContext, vars: mutable.HashMap[String,Term]): Unit = {
 
-      PrimitiveAction.execute(executionContext,PrimitiveAction.Parameters(() => println( Term.createTerm("'so close'") , VarManager.bindVar("D", vars)  )))
+      PrimitiveAction.execute(executionContext,PrimitiveAction.Parameters(() => println( VarManager.bindVar("Y", vars) , Term.createTerm("'is close by'") , VarManager.bindVar("D", vars)  )))
 
     }
 

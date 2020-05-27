@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project version="4">
-  <component name="ScalaCompilerConfiguration">
-    <profile name="sbt 1" modules="actor-playgrounds,commons,core,flint,flint-worlds-flint,flint-worlds-util,grounds,play-ground-grounds,playground,root,util" />
-  </component>
-</project>
