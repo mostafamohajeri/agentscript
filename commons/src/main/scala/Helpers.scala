@@ -8,7 +8,7 @@ import scala.collection.mutable
 trait IAgent {
   def initGoals(): List[IMessage]
 
-  def apply(name: String, yellowPages: ActorRef[IMessage]): Behavior[IMessage]
+  def apply(name: String, yellowPages: ActorRef[IMessage],MAS: ActorRef[IMessage]): Behavior[IMessage]
 }
 
 trait IMessage {
@@ -35,9 +35,12 @@ trait IGoalMessage extends IMessage {
 
 
 trait IBeliefMessage extends IMessage {
-  def belief(): AnyVal
+  def belief(): Term
+}
 
-  def params(): IParams
+case class BeliefMessage(p_belief: Term,p_sender: ActorRef[IMessage]) extends IBeliefMessage {
+  override def belief(): Term = p_belief
+  override def sender(): ActorRef[IMessage] = p_sender
 }
 
 trait IGoal {
@@ -61,14 +64,12 @@ case class GoalMessage(p_goal: IGoal, p_params: IParams, s: ActorRef[IMessage]) 
   override def params(): IParams = p_params
 }
 
-case class BeliefMessage(p_belief: AnyVal, p_params: IParams, s: ActorRef[IMessage]) extends Message(s) with IBeliefMessage {
-  override def belief(): AnyVal = p_belief
-
-  override def params(): IParams = p_params
-}
-
 case class StartMessage() extends IMessage {
   override def sender(): ActorRef[IMessage] = null
+}
+
+case class ReadyMessage(s : ActorRef[IMessage]) extends IMessage {
+  override def sender(): ActorRef[IMessage] = s
 }
 
 object YellowPages {
@@ -79,8 +80,13 @@ object YellowPages {
         message match {
           case ActorSubscribeMessage(name, ref) =>
             agentsPersistent.put(name, ref)
-          case ActorMessage(s, m, _) =>
-            agentsPersistent(s) ! m
+          case ActorMessage(d, m, s) =>
+            m match {
+              case BeliefMessage(b,_) =>
+              println (f" $s wants to send belief $b to $d")
+              if (agentsPersistent.contains (d) )
+              agentsPersistent (d) ! m
+            }
         }
         Behaviors.same
       }
@@ -98,20 +104,33 @@ object MAS {
   def apply(): Behavior[IMessage] = {
     Behaviors.setup { context => {
       var agentsNotStarted: Seq[ActorRef[IMessage]] = Seq()
+      var agentsNotInitialized : Int = 0
       var yellowPages: ActorRef[IMessage] = context.spawn(YellowPages.apply(), "yp");
       Behaviors.receive { (context, message) =>
         message match {
-          case AgentRequest(_, _) =>
-            for (a <- 1 to message.asInstanceOf[AgentRequest].count) {
-              val name = "Agent_" + a
-              val ref = context.spawn(message.asInstanceOf[AgentRequest].agent.apply(name, yellowPages), name)
-              agentsNotStarted = agentsNotStarted :+ ref
-              yellowPages.tell(ActorSubscribeMessage(name, ref))
-              // message.agent.initGoals().foreach(ref.tell)
+          case AgentRequest(types) =>
+            types foreach {
+              case (agentType, count) =>
+                agentsNotInitialized = count
+                for (a <- 1 to count) {
+                  val name = "Agent_" + a
+                  val ref = context.spawn(agentType.apply(name, yellowPages,context.self), name)
+                  agentsNotStarted = agentsNotStarted :+ ref
+                  yellowPages.tell(ActorSubscribeMessage(name, ref))
+                }
             }
-          case StartMessage() =>
-            agentsNotStarted.foreach(a => a ! StartMessage())
-            agentsNotStarted = Seq[ActorRef[IMessage]]()
+          case ReadyMessage(s) =>
+            agentsNotInitialized -= 1
+            println(f"ageNt $s says ready, we have $agentsNotInitialized agents to go")
+            if(agentsNotInitialized == 0) {
+              agentsNotStarted.foreach(a => a ! StartMessage())
+              agentsNotStarted = Seq[ActorRef[IMessage]]()
+            }
+
+          case _=> throw new RuntimeException(f"can no handle message of type $message")
+//          case StartMessage() =>
+//            agentsNotStarted.foreach(a => a ! StartMessage())
+//            agentsNotStarted = Seq[ActorRef[IMessage]]()
         }
         Behaviors.same
       }
@@ -121,7 +140,7 @@ object MAS {
 }
 
 
-case class AgentRequest(agent: IAgent, count: Int) extends IMessage {
+case class AgentRequest(agentTypes: Map[IAgent, Int]) extends IMessage {
   override def sender(): ActorRef[IMessage] = null
 }
 
@@ -130,7 +149,7 @@ object PrimitiveAction extends IGoal {
 
   case class Parameters(v1: () => Unit) extends IParams
 
-  def execute(executionContext: ExecutionContext, params: Parameters): Unit = {
+  def execute(params: Parameters) (implicit executionContext: ExecutionContext): Unit = {
     params.v1()
   }
 }
