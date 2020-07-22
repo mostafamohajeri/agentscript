@@ -1,17 +1,23 @@
-import sbt.Keys.{javaOptions, libraryDependencies}
+import sbt.ThisBuild
 
-lazy val root = (project in file(".")).aggregate(commons,grounds)
+lazy val root = (project in file(".")).settings(
+  libraryDependencies += "nl.uva.sne.cci" % "parser" % "0.1",
+  libraryDependencies += "nl.uva.sne.cci" % "scala-generator" % "0.1",
+  libraryDependencies += "nl.uva.sne.cci" % "antlr4grammars" % "0.1"
+).aggregate(commons,grounds)
 
-
-
-
-ThisBuild / resolvers += Resolver.bintrayRepo("pika-lab","tuprolog")
 ThisBuild / resolvers += Resolver.mavenLocal
+ThisBuild / resolvers += Resolver.bintrayRepo("pika-lab","tuprolog")
 
 
-libraryDependencies += "org.scalatest" %% "scalatest" % "3.3.0-SNAP2" % Test
 
+ThisBuild / libraryDependencies += "nl.uva.sne.cci" % "parser" % "0.1"
+ThisBuild / libraryDependencies += "nl.uva.sne.cci" % "scala-generator" % "0.1"
+ThisBuild / libraryDependencies += "nl.uva.sne.cci" % "antlr4grammars" % "0.1"
 
+ThisBuild / libraryDependencies += "org.scalatest" %% "scalatest" % "3.3.0-SNAP2" % Test
+ThisBuild / libraryDependencies += "org.scala-lang" % "scala-compiler" % scalaVersion.value
+ThisBuild / libraryDependencies += "org.scala-lang" % "scala-reflect" % scalaVersion.value
 ThisBuild / libraryDependencies += "com.typesafe.akka" %% "akka-actor" % "2.6.7"
 ThisBuild / libraryDependencies += "com.typesafe.akka" %% "akka-actor-typed" % "2.6.7"
 ThisBuild / libraryDependencies += "org.slf4j" % "slf4j-api" % "1.7.25"
@@ -40,16 +46,13 @@ ThisBuild / organization := "nl.uva.cci.rs"
 ThisBuild / version      := "0.1.0-SNAPSHOT"
 ThisBuild / scalaVersion := "2.13.3"
 
-lazy val commons: Project = project in file("commons")
+lazy val commons: Project = (project in file("commons")).settings(
+)
 
 lazy val flint: Project = (project in file("flint")).settings(
-
-
 ).dependsOn(commons).aggregate(commons)
 
 lazy val grounds: Project = (project in file("grounds")).settings(
-  libraryDependencies += "org.scalatest" %% "scalatest" % "3.3.0-SNAP2" % Test,
-  mainClass in (Compile, run) := Some("Main"),
 ).dependsOn(commons).aggregate(commons)
 
 

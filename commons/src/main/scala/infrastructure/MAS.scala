@@ -29,6 +29,7 @@ object MAS {
                 }
             }
           case ReadyMessage(s) =>
+
             agentsNotInitialized -= 1
 //            println(f"ageNt $s says ready, we have $agentsNotInitialized agents to go")
             if(agentsNotInitialized == 0) {

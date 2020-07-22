@@ -25,7 +25,7 @@ object prolog {
 
     val null_pointer_to_a_side_effect_manager : kotlin.jvm.functions.Function1[_ >: it.unibo.tuprolog.solve.SideEffectsBuilder, kotlin.Unit] = (b: SideEffectsBuilder)  => kotlin.Unit.INSTANCE
 
-    val gt: Function1[Solve.Request[ExecutionContext], Sequence[Solve.Response]] = ((request: Solve.Request[ExecutionContext]) => {
+    val gt: Function1[Solve.Request[ExecutionContext], Sequence[Solve.Response]] = (request: Solve.Request[ExecutionContext]) => {
       val arg1: Term = request.getArguments.get(0)
       val arg2: Term = request.getArguments.get(1)
 
@@ -50,13 +50,13 @@ object prolog {
 
 
       if (arg1.asInstanceOf[Numeric].getDecimalValue.compareTo(arg2.asInstanceOf[Numeric].getDecimalValue) > 0)
-        (() => Seq(request.replySuccess(request.getContext.getSubstitution, null)).asJava.iterator())
+        () => Seq(request.replySuccess(request.getContext.getSubstitution, null)).asJava.iterator()
       else
         () => Seq(request.replyFail(null)).asJava.iterator()
 
-    })
+    }
 
-    val replaceAll: Function1[Solve.Request[ExecutionContext], Sequence[Solve.Response]] = ((request: Solve.Request[ExecutionContext]) => {
+    val replaceAll: Function1[Solve.Request[ExecutionContext], Sequence[Solve.Response]] = (request: Solve.Request[ExecutionContext]) => {
       val arg1: Term = request.getArguments.get(0)
       val arg2: Term = request.getArguments.get(1)
       val arg3: Term = request.getArguments.get(2)
@@ -64,22 +64,22 @@ object prolog {
 
       val subs = Substitution.of(arg4.as[Var], Atom.of(arg1.as[Atom].getValue.replaceAll(arg2.as[Atom].getValue,arg3.as[Atom].getValue)))
 
-      (() => Seq(request.replySuccess(subs, null)).asJava.iterator())
+      () => Seq(request.replySuccess(subs, null)).asJava.iterator()
 
-    })
+    }
 
-    val concat: Function1[Solve.Request[ExecutionContext], Sequence[Solve.Response]] = ((request: Solve.Request[ExecutionContext]) => {
+    val concat: Function1[Solve.Request[ExecutionContext], Sequence[Solve.Response]] = (request: Solve.Request[ExecutionContext]) => {
       val arg1: Term = request.getArguments.get(0)
       val arg2: Term = request.getArguments.get(1)
       val arg3: Term = request.getArguments.get(2)
 
       val subs = Substitution.of(arg3.as[Var], Atom.of(arg1.as[Atom].getValue.concat(arg2.as[Atom].getValue)))
 
-      (() => Seq(request.replySuccess(subs, null)).asJava.iterator())
+      () => Seq(request.replySuccess(subs, null)).asJava.iterator()
 
-    })
+    }
 
-    val num2str: Function1[Solve.Request[ExecutionContext], Sequence[Solve.Response]] = ((request: Solve.Request[ExecutionContext]) => {
+    val num2str: Function1[Solve.Request[ExecutionContext], Sequence[Solve.Response]] = (request: Solve.Request[ExecutionContext]) => {
       val arg1: Term = request.getArguments.get(0)
       val arg2: Term = request.getArguments.get(1)
 
@@ -87,11 +87,11 @@ object prolog {
 
       val subs = Substitution.of(arg2.as[Var], Atom.of(arg1.as[Numeric].toString) )
 
-      (() => Seq(request.replySuccess(subs, null)).asJava.iterator())
+      () => Seq(request.replySuccess(subs, null)).asJava.iterator()
 
-    })
+    }
 
-    val str2num: Function1[Solve.Request[ExecutionContext], Sequence[Solve.Response]] = ((request: Solve.Request[ExecutionContext]) => {
+    val str2num: Function1[Solve.Request[ExecutionContext], Sequence[Solve.Response]] = (request: Solve.Request[ExecutionContext]) => {
       val arg1: Term = request.getArguments.get(0)
       val arg2: Term = request.getArguments.get(1)
 
@@ -100,9 +100,9 @@ object prolog {
 
       (() => Seq(request.replySuccess(subs, null)).asJava.iterator())
 
-    })
+    }
 
-    val between: Function1[Solve.Request[ExecutionContext], Sequence[Solve.Response]] = ((request: Solve.Request[ExecutionContext]) => {
+    val between: Function1[Solve.Request[ExecutionContext], Sequence[Solve.Response]] = (request: Solve.Request[ExecutionContext]) => {
       val arg1: Term = request.getArguments.get(0)
       val arg2: Term = request.getArguments.get(1)
       val arg3: Term = request.getArguments.get(2)
@@ -117,16 +117,16 @@ object prolog {
 
         override def hasNext: Boolean = current.compareTo(end) < 0
 
-        override def next(): Solve.Response = {
+        override def next(): Solve. Response = {
           current = current.plus(step)
           request.replySuccess(Substitution.of(
             arg3.as[Var], Numeric.of(current)),null)
         }
       }
 
-      (() => it)
+      () => it
 
-    })
+    }
 
   }
 

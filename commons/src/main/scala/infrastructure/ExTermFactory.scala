@@ -1,6 +1,0 @@
-package infrastructure
-
-
-
-// Temporary traits
-

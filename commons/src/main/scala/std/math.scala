@@ -15,13 +15,4 @@ object math {
     List.range(from.asInstanceOf[Int],to.asInstanceOf[Int])
 
 
-
-//  def plus[A](x: A, y: A)(implicit numeric: Numeric[A]): A = numeric.plus(x,y)
-//
-//  def minus[A](x: A, y: A)(implicit numeric: Numeric[A]): A = numeric.minus(x,y)
-//
-//  def mul[A](x: A, y: A)(implicit numeric: Numeric[A]): A = numeric.times(x,y)
-//
-//  def div[A](x: A, y: A)(implicit fractional: Fractional[A]): A = fractional.div(x,y)
-
 }

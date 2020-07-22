@@ -89,7 +89,7 @@ object bank {
               initiator ! InitEndMessage(name,context.self)
               Behaviors.same
             case InitEndMessage(_,_) =>
-//              context.log.debug(f"$name: I have started, switching behavior")
+              context.log.debug(f"$name: I have started, switching behavior")
               normal_behavior()
           }
 

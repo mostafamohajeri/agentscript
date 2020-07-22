@@ -1,13 +1,15 @@
 //
 //
-//object instance {
-//  var uuid: String = "631468ec-1a22-49d5-ad3a-c45d9bf3f1eb"
-//  val self_name: String = "Me"
-//
-//  def findDuties (): Unit = {
-//
-//  }
-//}
+object instance {
+  var uuid: String = "631468ec-1a22-49d5-ad3a-c45d9bf3f1eb"
+
+  val self_name: String = "Me"
+
+
+  def findDuties (): Unit = {
+
+  }
+}
 //
 //object Test1 extends App {
 //  var r = requests.post(
