@@ -8,7 +8,11 @@ before_script:
   - apt-get install sbt -y
   - sbt sbt-version
 
+build: 
+  script:
+    - sbt clean compile
+
 test:
   script:
-    - sbt clean compile test 
+    - sbt test 
 
