@@ -1,4 +1,4 @@
-image: maven:latest
+image: openjdk:11
 
 before_script:
   - apt-get update -y
