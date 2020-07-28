@@ -14,6 +14,7 @@ ThisBuild / resolvers += Resolver.bintrayRepo("pika-lab","tuprolog")
 ThisBuild / libraryDependencies += "nl.uva.sne.cci" % "parser" % "0.1"
 ThisBuild / libraryDependencies += "nl.uva.sne.cci" % "scala-generator" % "0.1"
 ThisBuild / libraryDependencies += "nl.uva.sne.cci" % "antlr4grammars" % "0.1"
+ThisBuild / libraryDependencies += "eflint" %% "scala-server" % "0.1.2" exclude("ch.qos.logback", "logback-classic")
 
 ThisBuild / libraryDependencies += "org.scalatest" %% "scalatest" % "3.3.0-SNAP2" % Test
 ThisBuild / libraryDependencies += "org.scala-lang" % "scala-compiler" % scalaVersion.value

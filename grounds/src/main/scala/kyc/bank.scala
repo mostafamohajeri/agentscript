@@ -1,12 +1,21 @@
-import scala.collection.mutable
 
+
+import scala.collection.mutable
 import akka.actor.typed.{ActorRef, Behavior, SupervisorStrategy}
 import akka.actor.typed.scaladsl.{ActorContext, Behaviors, Routers}
-import it.unibo.tuprolog.core.{Atom, Numeric, Struct, Term, Truth}
 
+import scala.util.Failure
+import scala.util.Success
+import akka.util.Timeout
+
+import scala.concurrent.duration._
+import it.unibo.tuprolog.core.{Atom, Numeric, Struct, Term, Truth}
+import akka.actor.typed.scaladsl.AskPattern._
+import akka.util.Timeout
+
+import scala.concurrent.{Await, Future}
 import scala.jdk.CollectionConverters._
 import std.coms._
-import scala.util.Random
 import bb._
 import infrastructure._
 import infrastructure.termutils.ExTermFactoryKT._
@@ -25,7 +34,7 @@ object bank {
           implicit val executionContext = p_executionContext.copy(intention = context,sender = Sender(message.c_sender_name,message.c_sender))
 
           message match {
-            case SubGoalMessage(_,_,_,_) =>
+            case SubGoalMessage(_,_,_,r) =>
               message.goal match {
 
                 case bank.register =>
@@ -50,8 +59,10 @@ object bank {
                 case _ =>
                   context.log.error("This actor can not handle goal of type {}", message.goal)
               }
+              r ! IntentionDoneMessage(Option(executionContext.name),Option(executionContext.agent.self))
               Behaviors.same
-            case InitEndMessage(s,r) => r ! message
+            case InitEndMessage(s,r) =>
+              //r ! message
               Behaviors.stopped
           }
       }
@@ -85,12 +96,39 @@ object bank {
           (context, message) => message match {
             case StartMessage() =>
               logger.start()
-              initGoals.foreach( tuple => initiator ! SubGoalMessage(tuple._1,tuple._2,name,context.self))
+
+              implicit val timeout: Timeout = 20.seconds
+              implicit val ec = context.executionContext
+              implicit val scheduler = context.system.scheduler
+
+
+//              initGoals.foreach( tuple => initiator ! SubGoalMessage(tuple._1,tuple._2,name,context.self))
+              initGoals.foreach(tuple => {
+
+                val result: Future[IMessage] =  initiator.ask[IMessage](ref => SubGoalMessage(tuple._1, tuple._2, name, ref))
+
+                result.onComplete {
+                    case Success(IntentionDoneMessage(n, r)) => context.log.debug(f"$n/$name: inital intention done")
+                    case Failure(_) => IntentionFailedMessage()
+                }
+
+                Await.result(result,timeout.duration)
+
+//                context.ask[ISubGoalMessage, IMessage](initiator, ref => SubGoalMessage(tuple._1, tuple._2, name, ref)) {
+//                  case Success(IntentionDoneMessage(_, _)) => IntentionDoneMessage()
+//                  case Failure(_) => IntentionErrorMessage()
+//                }
+              }
+              )
+
               initiator ! InitEndMessage(name,context.self)
-              Behaviors.same
-            case InitEndMessage(_,_) =>
               context.log.debug(f"$name: I have started, switching behavior")
               normal_behavior()
+
+//            case InitEndMessage(_,_) =>
+//              context.log.debug(f"$name: I have started, switching behavior")
+//              normal_behavior()
+
           }
 
         }
@@ -107,6 +145,8 @@ object bank {
 
         Behaviors.receive {
           (context, message) => message match {
+            case IntentionDoneMessage(s,r) =>
+              context.log.debug(f"${executionContext.name}: an intention was done by $s")
             case SubGoalMessage(_, _, _,_) =>
               router ! message.asInstanceOf[SubGoalMessage]
             case GoalMessage(m,r,ref) =>

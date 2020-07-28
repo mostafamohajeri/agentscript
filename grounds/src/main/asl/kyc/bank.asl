@@ -10,7 +10,7 @@ employee(#toTerm(#kyc.data_gen.bank_data(#myName).employee(0))).
     !register_client(Client,I)
 .
 
-+!interview_complete(Client,I,true) : E = #toTerm(#executionContext.sender.name) && employee(E) =>
++!interview_complete(Client,I,true) : E = #toTerm(#executionContext.sender.name) && employee(E) && client(Client) =>
     #println("interview complete for " + Client);
     !update_client(Client,I)
 .

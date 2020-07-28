@@ -1,8 +1,9 @@
 package infrastructure
 
 import akka.actor.typed.scaladsl.{ActorContext, Behaviors}
-import akka.actor.typed.{ActorRef, Behavior}
+import akka.actor.typed.{ActorRef, ActorRefResolver, Behavior}
 import infrastructure.access.ASHttpServer
+import scala.collection.parallel.CollectionConverters._
 
 object MAS {
 
@@ -11,6 +12,7 @@ object MAS {
       ASHttpServer.create(context)
       var agentsNotStarted: Seq[ActorRef[IMessage]] = Seq()
       var agentsNotInitialized : Int = 0
+      val resolver = ActorRefResolver(context.system)
       var t0 = System.nanoTime();
       var t1 : Long = System.nanoTime()
       var yellowPages: ActorRef[IMessage] = context.spawn(YellowPages.apply(), "yp");
@@ -25,7 +27,7 @@ object MAS {
                   t0 = System.nanoTime()
                   val ref = context.spawn(agentType.apply(name, yellowPages,context.self), name)
                   agentsNotStarted = agentsNotStarted :+ ref
-                  yellowPages.tell(ActorSubscribeMessage(name, ref))
+                  yellowPages ! ActorSubscribeMessage(name, ref)
                 }
             }
           case ReadyMessage(s) =>
@@ -34,7 +36,7 @@ object MAS {
 //            println(f"ageNt $s says ready, we have $agentsNotInitialized agents to go")
             if(agentsNotInitialized == 0) {
               println((System.nanoTime() - t0) / 10e9)
-              agentsNotStarted.foreach(a => a ! StartMessage())
+              agentsNotStarted.par.foreach(a => a ! StartMessage())
               agentsNotStarted = Seq[ActorRef[IMessage]]()
             }
 

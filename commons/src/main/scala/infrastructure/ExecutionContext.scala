@@ -1,6 +1,6 @@
 package infrastructure
 
-import akka.actor.typed.ActorRef
+import akka.actor.typed.{ActorRef, ActorRefResolver}
 import akka.actor.typed.scaladsl.ActorContext
 import bb.BeliefBaseKT
 

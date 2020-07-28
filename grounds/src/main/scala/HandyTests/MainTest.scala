@@ -1,14 +1,9 @@
+package HandyTests
 
-
-import agentfactory.{FactoryCompiler, FactoryManager}
+import agentfactory.FactoryManager
 import akka.actor.typed
-import akka.actor.typed.ActorSystem
+import akka.actor.typed.{ActorRefResolver, ActorSystem}
 import infrastructure.{AgentRequest, AgentRequestMessage, IMessage, MAS}
-import translation.Translator
-
-import scala.reflect.runtime.universe
-
-
 
 object MainTest {
 
@@ -16,15 +11,16 @@ object MainTest {
 
 
 
-  def getTypeTag[T: universe.TypeTag](obj: T) = universe.typeTag[T]
+  val system: ActorSystem[IMessage] = typed.ActorSystem(MAS(), "MAS")
+  val resolver : ActorRefResolver = ActorRefResolver(system)
 
   def main(args: Array[String]): Unit = {
 
     import org.apache.log4j.BasicConfigurator
     BasicConfigurator.configure()
 
-    val system: ActorSystem[IMessage] =
-      typed.ActorSystem(MAS(), "MAS")
+//    val system: ActorSystem[IMessage] =
+//      typed.ActorSystem(MAS(), "MAS")
 
 
     system ! AgentRequestMessage(
@@ -40,4 +36,3 @@ object MainTest {
 
 
 }
-

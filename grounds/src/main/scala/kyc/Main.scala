@@ -1,5 +1,7 @@
+
+
 import akka.actor.typed
-import akka.actor.typed.ActorSystem
+import akka.actor.typed.{ActorRefResolver, ActorSystem}
 import infrastructure.{AgentRequest, AgentRequestMessage, IMessage, MAS}
 
 object Main {
@@ -11,9 +13,9 @@ object Main {
     import org.apache.log4j.BasicConfigurator
     BasicConfigurator.configure()
 
-    val system: ActorSystem[IMessage] =
-      typed.ActorSystem(MAS(), "MAS")
 
+    val system: ActorSystem[IMessage] = typed.ActorSystem(MAS(), "MAS")
+    val resolver : ActorRefResolver = ActorRefResolver(system)
 
     system ! AgentRequestMessage(
       Seq(
@@ -21,7 +23,8 @@ object Main {
         AgentRequest(bank.Agent, "ing", 1),
         AgentRequest(bank.Agent, "abn", 1),
         AgentRequest(employee.Agent, "employee", 2)
-      ))
+      )
+    )
 
   }
 
