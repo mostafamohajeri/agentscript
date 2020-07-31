@@ -1,11 +1,12 @@
 package infrastructure
 
+import bb.exp.StructTerm
 import it.unibo.tuprolog.core.{Struct, Term}
 
 
 object BeliefUpdateAction extends IGoal {
 
-  case class Parameters(v1: String, v2: Struct) extends IParams
+  case class Parameters(v1: String, v2: StructTerm) extends IParams
 
   def execute(params: Parameters) (implicit executionContext: ExecutionContext): Boolean = {
     val op = params.v1

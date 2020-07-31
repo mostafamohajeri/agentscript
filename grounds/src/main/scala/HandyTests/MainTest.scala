@@ -5,6 +5,9 @@ import akka.actor.typed
 import akka.actor.typed.{ActorRefResolver, ActorSystem}
 import infrastructure.{AgentRequest, AgentRequestMessage, IMessage, MAS}
 
+import scala.language.implicitConversions
+
+
 object MainTest {
 
 
@@ -23,6 +26,14 @@ object MainTest {
 //      typed.ActorSystem(MAS(), "MAS")
 
 
+//    system ! AgentRequestMessage(
+//      Seq(
+//        AgentRequest(FactoryManager.create("/home/msotafa/IdeaProjects/actor-playgrounds/grounds/src/main/asl/kyc/client.asl","client"), "client", 4),
+//        AgentRequest(FactoryManager.create("/home/msotafa/IdeaProjects/actor-playgrounds/grounds/src/main/asl/kyc/bank.asl","bank"), "ing", 1),
+//        AgentRequest(FactoryManager.create("/home/msotafa/IdeaProjects/actor-playgrounds/grounds/src/main/asl/kyc/bank.asl","bank"), "abn", 1),
+//        AgentRequest(FactoryManager.create("/home/msotafa/IdeaProjects/actor-playgrounds/grounds/src/main/asl/kyc/employee.asl","employee"), "employee", 2)
+//      ))
+
     system ! AgentRequestMessage(
       Seq(
         AgentRequest(FactoryManager.create("/home/msotafa/IdeaProjects/actor-playgrounds/grounds/src/main/asl/kyc/client.asl","client"), "client", 4),
@@ -30,7 +41,6 @@ object MainTest {
         AgentRequest(FactoryManager.create("/home/msotafa/IdeaProjects/actor-playgrounds/grounds/src/main/asl/kyc/bank.asl","bank"), "abn", 1),
         AgentRequest(FactoryManager.create("/home/msotafa/IdeaProjects/actor-playgrounds/grounds/src/main/asl/kyc/employee.asl","employee"), "employee", 2)
       ))
-
 
   }
 

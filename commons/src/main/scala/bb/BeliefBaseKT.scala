@@ -2,6 +2,7 @@ package bb
 
 import java.util
 
+import bb.exp.{GenericTerm, StructTerm}
 import infrastructure.QueryResponse
 import it.unibo.tuprolog.core.operators.OperatorSet
 import it.unibo.tuprolog.core.{Atom, Struct, Term}
@@ -60,71 +61,72 @@ class BeliefBaseKT() {
 //    )
 //  )
 
-  def assert(term: Struct): Boolean = this.synchronized {
+  def assert(term: StructTerm): Boolean = this.synchronized {
 //    query(Struct.of(",", Struct.of("not", term), Struct.of("asserta", term))).result
 
-    solver.assertA(term)
+    solver.assertA(term.getTermValue.as[Struct])
 //    println(solver.getDynamicKb)
     true
   }
 
-  def assert(terms: List[Struct]): Unit = this.synchronized {
+  def assert(terms: List[StructTerm]): Unit = this.synchronized {
     terms.foreach(t => assert(t))
   }
 
-  def retract(term: Struct): Boolean = this.synchronized {
+  def retract(term: StructTerm): Boolean = this.synchronized {
 //    query(Struct.of("retractAll", term)).result
-    solver.retractAll(term)
+    solver.retractAll(term.getTermValue.as[Struct])
     true
 //    println(solver.getDynamicKb)
 //    true
   }
 
-  def query(term: Struct): QueryResponse = this.synchronized {
+  def query(term: StructTerm): QueryResponse = this.synchronized {
 
     var sol: Solution = null
 
-    val sol1 = solver.solve(term, Int.MaxValue).iterator()
+    val sol1 = solver.solve(term.getTermValue.as[Struct], Int.MaxValue).iterator()
     if (sol1.hasNext)
       sol = sol1.next().asInstanceOf[Solution]
 
 
     if (sol.isYes) {
-      val vars: Map[String, Term] = sol.getSubstitution.asScala map { v => v._1.getName -> v._2 } toMap
+      val vars: Map[String, GenericTerm] = sol.getSubstitution.asScala map { v => v._1.getName -> GenericTerm.create(v._2) } toMap
 
       QueryResponse(result = true, vars)
     }
     else {
-      QueryResponse(result = false, Map[String, Term]())
+      QueryResponse(result = false, Map[String, GenericTerm]())
     }
   }
 
-  def rawQuery(term: Struct): Iterator[Solution] = this.synchronized {
+  def bufferedQuery(term: StructTerm): Iterator[QueryResponse] = this.synchronized {
 
-    val ret = new ListBuffer[Solution]()
-    solver.solve(term, Int.MaxValue).iterator().asInstanceOf[java.util.Iterator[Solution]].forEachRemaining(s => ret.append(s))
+    val ret = new ListBuffer[QueryResponse]()
+    solver.solve(term.getTermValue.as[Struct], Int.MaxValue).iterator().asInstanceOf[java.util.Iterator[Solution]].forEachRemaining(s => {
+      val vars: Map[String, GenericTerm] = s.getSubstitution.asScala map { v => v._1.getName -> GenericTerm.create(v._2) } toMap
+
+      ret.append(QueryResponse(result = true, vars))
+    })
     ret.iterator
 
   }
 
-  def query(): QueryResponse = QueryResponse(result = true, Map[String, Term]())
+  def query(): QueryResponse = QueryResponse(result = true, Map[String, GenericTerm]())
 
-  def matchTerms(term1: Term, term2: Term): QueryResponse = {
-    val ret = unificator.mgu(term1,term2)
+  def matchTerms(term1: StructTerm, term2: StructTerm): QueryResponse = {
+    val ret = unificator.mgu(term1.getTermValue.as[Struct],term2.getTermValue.as[Struct])
     if(ret.isSuccess) {
-      val vars: Map[String, Term] = ret.asScala map { v => v._1.getName -> v._2 } toMap
+      val vars: Map[String, GenericTerm] = ret.asScala map { v => v._1.getName -> GenericTerm.create(v._2) } toMap
 
       QueryResponse(result = true, vars)
     }
     else {
-      QueryResponse(result = false, Map[String, Term]())
+      QueryResponse(result = false, Map[String, GenericTerm]())
     }
   }
 
-  def matchTerms(): QueryResponse = QueryResponse(result = true, Map[String, Term]())
+  def matchTerms(): QueryResponse = QueryResponse(result = true, Map[String, GenericTerm]())
 
-  def mgu(term1: Term, term2: Term): Unit = {
-    println(unificator.mgu(term1, term2))
-  }
 }
 
