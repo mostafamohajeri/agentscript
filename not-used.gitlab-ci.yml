@@ -1,3 +1,5 @@
+image: openjdk:11
+
 before_script:
   - apt-get update -y
   - apt-get install apt-transport-https -y
@@ -6,13 +8,15 @@ before_script:
   - apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 642AC823
   - apt-get update -y
   - apt-get install sbt -y
-  - sbt sbt-version
+  - sbt sbtVersion
 
 build: 
+  stage: build
   script:
     - sbt clean compile
 
 test:
+  stage: test
   script:
     - sbt test 
 
