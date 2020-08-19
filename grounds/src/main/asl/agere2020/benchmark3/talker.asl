@@ -1,8 +1,17 @@
+ponged(0).
 
-!ask_yourself(100000).
+!ping_all.
 
-+!ask_yourself(0) => #println("done: " + #executionContext.agentLogger.timeTaken).
++!ping_all =>
+    #broadcast_achieve(ping)
+.
 
-+!ask_yourself(X) =>
-    !ask_yourself(X)
-   .
++!ping =>
+    #achieve(#executionContext.sender.name,pong).
+
++!pong : ponged(X) =>
+    +ponged(X + 1) ;
+    #println(#myName +" : I was ponged " + X + " at " + #executionContext.agentLogger.timeTaken)
+    .
+
+

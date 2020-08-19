@@ -2,70 +2,46 @@ package bb
 
 import java.util
 
-import bb.exp.{GenericTerm, IntTerm, StructTerm}
+import bb.exp.VarTerm
+import bb.expstyla.exp.{GenericTerm, StringTerm, StructTerm}
 import infrastructure.QueryResponse
-import it.unibo.tuprolog.core.operators.OperatorSet
-import it.unibo.tuprolog.core.{Atom, Integer, Struct, Term}
-import it.unibo.tuprolog.dsl.unify.{PrologWithUnification, PrologWithUnificationImpl}
-import it.unibo.tuprolog.solve.library.{Libraries, Library}
-import it.unibo.tuprolog.solve.primitive.Solve
-import it.unibo.tuprolog.solve.{ClassicSolverFactory, ExecutionContext, MutableSolver, Solution, Solver}
-import it.unibo.tuprolog.theory.Theory
-import it.unibo.tuprolog.unify.Unificator
-import kotlin.jvm.functions.Function1
-import kotlin.sequences.Sequence
-import std.prolog
-import std.prolog.fun_creator
+import prolog.LogicEngine
+import prolog.builtins.{assert, retractall}
+import prolog.terms.{Fun, SmallInt, Trail}
 
 import scala.collection.mutable.ListBuffer
 import scala.jdk.CollectionConverters._
 import scala.language.postfixOps
 
-class BeliefBaseKT() {
+class BeliefBaseStyla() {
 
-  val unificator = Unificator.getDefault
 
-  val solver: MutableSolver =
-    ClassicSolverFactory.INSTANCE.mutableSolverWithDefaultBuiltins(
-      new Libraries(
-        Library.aliased(
-          new OperatorSet(),
-          Theory.empty(),
-          Map(
-            prolog.fun_creator.replaceAllSignature -> ((fun_creator.replaceAll).asInstanceOf[Function1[_ >: Solve.Request[_ <: ExecutionContext], _ <: Sequence[Solve.Response]]]),
-            prolog.fun_creator.concatSignature -> ((fun_creator.concat).asInstanceOf[Function1[_ >: Solve.Request[_ <: ExecutionContext], _ <: Sequence[Solve.Response]]]),
-            prolog.fun_creator.num2strSignature -> ((fun_creator.num2str).asInstanceOf[Function1[_ >: Solve.Request[_ <: ExecutionContext], _ <: Sequence[Solve.Response]]]),
-            prolog.fun_creator.str2numSignature -> ((fun_creator.str2num).asInstanceOf[Function1[_ >: Solve.Request[_ <: ExecutionContext], _ <: Sequence[Solve.Response]]]),
-            prolog.fun_creator.betweenSignature -> ((fun_creator.between).asInstanceOf[Function1[_ >: Solve.Request[_ <: ExecutionContext], _ <: Sequence[Solve.Response]]])
-          ).asJava,
-          new util.HashMap(),
-          "utils"
-        )
-      )
-    )
+  val logicEngine = new LogicEngine()
 
-//  val e = new ExecutionContext
+  //  val e = new ExecutionContext
 
-//  solver.loadLibrary(
-//    Library.aliased(
-//      new OperatorSet(),
-//      Theory.empty(),
-//      Map(
-//        prolog.fun_creator.replaceAllSignature -> ((fun_creator.replaceAll).asInstanceOf[Function1[_ >: Solve.Request[_ <: ExecutionContext], _ <: Sequence[Solve.Response]]]),
-//        prolog.fun_creator.concatSignature -> ((fun_creator.concat).asInstanceOf[Function1[_ >: Solve.Request[_ <: ExecutionContext], _ <: Sequence[Solve.Response]]]),
-//        prolog.fun_creator.num2strSignature -> ((fun_creator.num2str).asInstanceOf[Function1[_ >: Solve.Request[_ <: ExecutionContext], _ <: Sequence[Solve.Response]]]),
-//        prolog.fun_creator.str2numSignature -> ((fun_creator.str2num).asInstanceOf[Function1[_ >: Solve.Request[_ <: ExecutionContext], _ <: Sequence[Solve.Response]]])
-//      ).asJava,
-//      new util.HashMap(),
-//      "utils"
-//    )
-//  )
+  //  solver.loadLibrary(
+  //    Library.aliased(
+  //      new OperatorSet(),
+  //      Theory.empty(),
+  //      Map(
+  //        prolog.fun_creator.replaceAllSignature -> ((fun_creator.replaceAll).asInstanceOf[Function1[_ >: Solve.Request[_ <: ExecutionContext], _ <: Sequence[Solve.Response]]]),
+  //        prolog.fun_creator.concatSignature -> ((fun_creator.concat).asInstanceOf[Function1[_ >: Solve.Request[_ <: ExecutionContext], _ <: Sequence[Solve.Response]]]),
+  //        prolog.fun_creator.num2strSignature -> ((fun_creator.num2str).asInstanceOf[Function1[_ >: Solve.Request[_ <: ExecutionContext], _ <: Sequence[Solve.Response]]]),
+  //        prolog.fun_creator.str2numSignature -> ((fun_creator.str2num).asInstanceOf[Function1[_ >: Solve.Request[_ <: ExecutionContext], _ <: Sequence[Solve.Response]]])
+  //      ).asJava,
+  //      new util.HashMap(),
+  //      "utils"
+  //    )
+  //  )
+
+  val lru = new LRUCache[StructTerm,QueryResponse](100)
 
   def assert(term: StructTerm): Boolean = this.synchronized {
-//    query(Struct.of(",", Struct.of("not", term), Struct.of("asserta", term))).result
-
-    solver.assertA(term.getTermValue.as[Struct])
-//    println(solver.getDynamicKb)
+    val assert= new assert()
+    assert.args = Array(term.getTermValue)
+    logicEngine.setGoal(assert)
+    val answer = logicEngine.askAnswer()
     true
   }
 
@@ -74,116 +50,92 @@ class BeliefBaseKT() {
   }
 
   def retract(term: StructTerm): Boolean = this.synchronized {
-//    query(Struct.of("retractAll", term)).result
-    solver.retractAll(term.getTermValue.as[Struct])
+    val retractAll= new retractall()
+    retractAll.args = Array(term.getTermValue)
+    logicEngine.setGoal(retractAll)
+    logicEngine.askAnswer()
     true
-//    println(solver.getDynamicKb)
-//    true
   }
 
   def query(term: StructTerm): QueryResponse = this.synchronized {
 
-    var sol: Solution = null
-
-    val sol1 = solver.solve(term.getTermValue.as[Struct], Int.MaxValue).iterator()
-    if (sol1.hasNext)
-      sol = sol1.next().asInstanceOf[Solution]
+    logicEngine.set_query(List(term.getTermValue))
 
 
-    if (sol.isYes) {
-      val vars: Map[String, GenericTerm] = sol.getSubstitution.asScala map { v => v._1.getName -> GenericTerm.create(v._2) } toMap
+    val answer = logicEngine.askAnswer()
+
+    if(answer == null) {
+
+      QueryResponse(result = false, Map[String, GenericTerm]())
+
+    } else {
+      val vars = logicEngine.substitutions().map(tuple => tuple._1 -> GenericTerm.create(tuple._2.ref))
 
       QueryResponse(result = true, vars)
-    }
-    else {
-      QueryResponse(result = false, Map[String, GenericTerm]())
     }
   }
 
   def bufferedQuery(term: StructTerm): Iterator[QueryResponse] = this.synchronized {
 
     val ret = new ListBuffer[QueryResponse]()
-    solver.solve(term.getTermValue.as[Struct], Int.MaxValue).iterator().asInstanceOf[java.util.Iterator[Solution]].forEachRemaining(s => {
-      val vars: Map[String, GenericTerm] = s.getSubstitution.asScala map { v => v._1.getName -> GenericTerm.create(v._2) } toMap
 
-      ret.append(QueryResponse(result = true, vars))
-    })
+    logicEngine.setGoal(term.getTermValue)
+
+    var more = true
+
+    while (more) {
+      val answer = logicEngine.askAnswer()
+      if (null == answer)
+        more = false
+      else {
+        val vars = logicEngine.substitutions().map(tuple => tuple._1 -> GenericTerm.create(tuple._2.ref))
+        ret.append(QueryResponse(result = true, vars))
+      }
+    }
+
     ret.iterator
-
   }
 
   def query(): QueryResponse = QueryResponse(result = true, Map[String, GenericTerm]())
 
-  def matchTerms(term1: StructTerm, term2: StructTerm): QueryResponse = this.synchronized {
+  def matchTerms(term1: StructTerm, term2: StructTerm): QueryResponse = {
     val t1 = term1.getTermValue
     val t2 = term2.getTermValue
 
-//     println(t1 , t2)
 
-      val ret = unificator.mgu(t1, t2)
-      if (ret.isSuccess) {
-        val vars: Map[String, GenericTerm] = ret.asScala map { v => v._1.getName -> GenericTerm.create(v._2) } toMap
+    val tr = new Trail()
 
-        QueryResponse(result = true, vars)
-      }
-      else {
-        QueryResponse(result = false, Map[String, GenericTerm]())
-      }
-
-
-
-
-
-
+    if (t1.unify(t2,tr)) {
+      QueryResponse(result = true, tr.substitutions() map { v => v._1 -> GenericTerm.create(v._2.ref) })
+    }
+    else {
+      QueryResponse(result = false, Map[String, GenericTerm]())
+    }
   }
 
-  def matchTerms(term1: Term, term2: Term): Boolean = this.synchronized {
-    val t1 = term1
-    val t2 = term2
 
-    val ret = unificator.mgu(t1, t2)
-
-    ret.isSuccess
-  }
 
   def matchTerms(): QueryResponse = QueryResponse(result = true, Map[String, GenericTerm]())
 
 }
 
-object test extends App {
-  val unificator = Unificator.getDefault;
-  val t1 = Struct.of("a", Integer.of(0))
+import java.util.Collections.synchronizedMap
 
-  execute(100000)
+import scala.jdk.CollectionConverters._
+import scala.collection.mutable
 
-  def execute(int: Int): Unit = {
+class LRUCache[K, V](maxEntries: Int)
+  extends java.util.LinkedHashMap[K, V](100, .75f, true) {
 
-
-
-    if (unificator.mgu(t1,Struct.of("a", Integer.of(int))).isSuccess) {
-      plan0(1)
-      return
-    }
-
-    val m0 = true
-    if (m0) {
-      plan1(int)
-      return
-    }
-
-  }
-
-  def plan0(int: Int): Unit = {
-    println("done")
-  }
-
-  def plan1(int: Int): Unit = {
-    if(int == 0)
-      println("Waat")
-    else
-      execute(int - 1)
-  }
-
+  override def removeEldestEntry(eldest: java.util.Map.Entry[K, V]): Boolean
+  = size > maxEntries
 
 }
+
+object LRUCache {
+  def apply[K, V](maxEntries: Int): mutable.Map[K, V]
+  = synchronizedMap(new LRUCache[K, V](maxEntries)).asScala
+}
+
+
 

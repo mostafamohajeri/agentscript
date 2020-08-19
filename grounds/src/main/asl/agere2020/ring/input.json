@@ -3,7 +3,7 @@
     {
       "name" : "thread",
       "script_file" : "thread.asl",
-      "number": 500
+      "number": 10
     } ,
     {
       "name" : "master",

@@ -13,7 +13,7 @@ complement(C, C, C).
 !set_and_print_color.
 
 +!set_and_print_color =>
-    C = #chams.ChameneosData.color(#myName.replaceAll("cham","").toInt);
+    C = #benchmark.cham_data.color(#myName.replaceAll("cham","").toInt);
     #println(C);
     #achieve("broker1",ready);
     +color(C).

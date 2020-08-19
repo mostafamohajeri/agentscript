@@ -1,8 +1,10 @@
-package bb.exp
+package bb.expstyla.exp
 
-import it.unibo.tuprolog.core.{Atom, Integer, Real, Struct, Term, Truth, Var}
+import bb.IGenericTerm
+import prolog.builtins.{fail_, true_}
+import prolog.terms.{Const, Fun, Real, SmallInt, Term, Truth, Var}
 
-abstract class GenericTerm {
+abstract class GenericTerm extends IGenericTerm {
 
 
   def +(other: GenericTerm): GenericTerm = {
@@ -40,7 +42,7 @@ abstract class GenericTerm {
 
   def /(other: GenericTerm): GenericTerm = {
     (this,other) match {
-      case (IntTerm(l),IntTerm(r)) => DoubleTerm(l / r)
+      case (IntTerm(l),IntTerm(r)) => DoubleTerm(l.toDouble / r.toDouble)
       case (DoubleTerm(l),IntTerm(r)) => DoubleTerm(l / r)
       case (DoubleTerm(l),DoubleTerm(r)) => DoubleTerm(l / r)
       case (IntTerm(l),DoubleTerm(r)) => DoubleTerm(l / r)
@@ -176,14 +178,15 @@ object GenericTerm {
   def create(value : Double): GenericTerm = DoubleTerm(value)
   def create(value : String): GenericTerm = StringTerm(value)
   def create(value : Boolean): GenericTerm = BooleanTerm(value)
-  def create(value : Struct): GenericTerm = StructTerm(value.getFunctor,value.getArgs.map(a => create(a)))
-  def create(value : Var): GenericTerm = VarTerm(value.getName)
+  def create(value : Fun): GenericTerm = StructTerm(value.sym,value.args.map(a => create(a)))
+  def create(value : Var): GenericTerm = VarTerm(value.v_name)
   def create(value : Term): GenericTerm =  {
     value match {
-      case a: Atom => create(a.toString)
-      case a: Truth => create(a.isTrue)
-      case a: Struct => create(a)
-      case a: Integer => create(a.getIntValue.toInt)
+      case a: Const => create(a.sym)
+      case true_() => create(true)
+      case fail_() => create(false)
+      case a: Fun => create(a)
+      case a: SmallInt => create(a.getValue.toInt)
       case a: Real => create(a.getValue.toDouble)
       case a: Var => create(a)
     }

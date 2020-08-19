@@ -1,8 +1,9 @@
 package bb.exp
 
+import bb.IGenericTerm
 import it.unibo.tuprolog.core.{Atom, Integer, Real, Struct, Term, Truth, Var}
 
-abstract class GenericTerm {
+abstract class GenericTerm extends IGenericTerm{
 
 
   def +(other: GenericTerm): GenericTerm = {
@@ -50,7 +51,7 @@ abstract class GenericTerm {
 
   def %(other: GenericTerm): GenericTerm = {
     (this,other) match {
-      case (IntTerm(l),IntTerm(r)) => DoubleTerm(l % r)
+      case (IntTerm(l),IntTerm(r)) => IntTerm(l % r)
       case (DoubleTerm(l),IntTerm(r)) => DoubleTerm(l % r)
       case (DoubleTerm(l),DoubleTerm(r)) => DoubleTerm(l % r)
       case (IntTerm(l),DoubleTerm(r)) => DoubleTerm(l % r)
@@ -137,6 +138,7 @@ abstract class GenericTerm {
       case (l: Any, r: Any) => throw new TypeException(f"Can not apply operator {||} to types ${l.getClass} and ${r.getClass}" )
     }
   }
+
 
 
   def unary_! : GenericTerm = {

@@ -6,7 +6,7 @@ import infrastructure.{AgentRequest, AgentRequestMessage, IMessage, MAS}
 
 import scala.language.implicitConversions
 
-object Main {
+object Token_ring {
 
 
   def main(args: Array[String]): Unit = {

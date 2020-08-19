@@ -1,4 +1,4 @@
-package cham_test
+package benchmark
 
  import _root_.scala.collection.mutable.HashMap
 
@@ -73,11 +73,11 @@ package cham_test
          )
 
          def initBeliefs()(implicit executionContext: ExecutionContext) = List[StructTerm](
-                     StructTerm("agents",Seq[GenericTerm](cham_test.ring_data.nb_agents))
+                     StructTerm("agents",Seq[GenericTerm](benchmark.ring_data.nb_agents))
            ,
-            StructTerm("tokens",Seq[GenericTerm](cham_test.ring_data.nb_tokens))
+            StructTerm("tokens",Seq[GenericTerm](benchmark.ring_data.nb_tokens))
            ,
-            StructTerm("token_value",Seq[GenericTerm](cham_test.ring_data.nb_hops))
+            StructTerm("token_value",Seq[GenericTerm](benchmark.ring_data.nb_hops))
 
          )
 

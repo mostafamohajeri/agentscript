@@ -1,8 +1,8 @@
 package infrastructure
 
-import bb.exp.GenericTerm
-import it.unibo.tuprolog.core.Term
+import bb.IGenericTerm
+import bb.expstyla.exp.GenericTerm
 
 
-case class QueryResponse(result: Boolean,bindings: Map[String,GenericTerm])
+case class QueryResponse(result: Boolean,bindings: Map[String,IGenericTerm])
 

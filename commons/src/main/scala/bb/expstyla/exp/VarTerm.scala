@@ -1,6 +1,7 @@
-package bb.exp
+package bb.expstyla.exp
 
-import it.unibo.tuprolog.core.{Integer, Term, Var}
+import prolog.terms.{Term, Var}
+
 
 case class VarTerm(value: String) extends GenericTerm {
 
@@ -18,5 +19,5 @@ case class VarTerm(value: String) extends GenericTerm {
 
   override def toString: String = value.toString
 
-  lazy val variable = Var.of(value)
+  lazy val variable = new Var(value)
 }

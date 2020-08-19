@@ -1,6 +1,12 @@
-nb_meetings(1000).
+nb_meetings(#benchmark.cham_data.nb_meetings).
 nb_ready(0).
-nb_chams(500).
+nb_chams(#benchmark.cham_data.nb_chameneos).
+
+!init.
+
++!init =>
+    #println("start at:");
+    #println(#System.currentTimeMillis()).
 
 @atomic
 +!ready : nb_ready(N) && nb_chams(N1) =>

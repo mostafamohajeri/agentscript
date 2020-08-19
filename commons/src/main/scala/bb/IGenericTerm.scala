@@ -1,6 +1,6 @@
 package bb
 
-trait IGenericTerm {
+abstract class IGenericTerm {
 
 
 

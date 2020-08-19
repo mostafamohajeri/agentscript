@@ -2,7 +2,7 @@ package infrastructure
 
 import akka.actor.typed.{ActorRef, ActorRefResolver}
 import akka.actor.typed.scaladsl.ActorContext
-import bb.BeliefBaseKT
+import bb.{BeliefBaseKT, BeliefBaseStyla, IBeliefBase, IGenericTerm}
 
 
 case class ExecutionContext(
@@ -10,7 +10,7 @@ case class ExecutionContext(
                              agentType: String,
                              agent: ActorContext[IMessage],
                              yellowPages: ActorRef[IMessage],
-                             beliefBase: BeliefBaseKT,
+                             beliefBase: BeliefBaseStyla,
                              agentLogger: AgentLogger,
                              intention: ActorContext[ISubGoalMessage],
                              sender : Sender
@@ -24,7 +24,7 @@ object ExecutionContext {
               agentType: String,
               agent: ActorContext[IMessage],
               yellowPages: ActorRef[IMessage],
-              beliefBase: BeliefBaseKT,
+              beliefBase: BeliefBaseStyla,
               agentLogger: AgentLogger
             ) : ExecutionContext = {
     ExecutionContext(

@@ -1,4 +1,4 @@
-package listener_talker
+package scriptcc
 
 
 import HandyTests.MainTest.system
@@ -6,6 +6,7 @@ import agentfactory.FactoryManager
 import akka.actor.typed
 import akka.actor.typed.{ActorRefResolver, ActorSystem}
 import akka.actor.typed.ActorSystem
+import com.typesafe.config.ConfigFactory
 import infrastructure.{AgentRequest, AgentRequestMessage, IMessage, MAS}
 import it.unibo.tuprolog.core.{Atom, Real, Term, Truth}
 import it.unibo.tuprolog.unify.Unificator
@@ -117,7 +118,33 @@ object Main {
 //    println( vars+=+ ("M" -> IntTerm(2)) )
 //    println(  (vars -=- IntTerm(100))  && StructTerm("neighbor",Seq[GenericTerm](vars("N"))) )
 
-    val system: ActorSystem[IMessage] = typed.ActorSystem(MAS(), "MAS")
+
+    val conf1 = ConfigFactory.load(ConfigFactory.parseString("""
+ akka {
+ actor {
+  default-dispatcher {
+    # Dispatcher is the name of the event-based dispatcher
+    type = Dispatcher
+    # What kind of ExecutionService to use
+    executor = "fork-join-executor"
+    # Configuration for the fork join pool
+    fork-join-executor {
+      # Min number of threads to cap factor-based parallelism number to
+      parallelism-min = 32
+      # Parallelism (threads) ... ceil(available processors * factor)
+      parallelism-factor = 1.0
+      # Max number of threads to cap factor-based parallelism number to
+      parallelism-max = 32
+    }
+    # Throughput defines the maximum number of messages to be
+    # processed per actor before the thread jumps to the next actor.
+    # Set to 1 for as fair as possible.
+    throughput = 1
+  }}}
+
+ """))
+
+    val system: ActorSystem[IMessage] = typed.ActorSystem(MAS(), "MAS",conf1)
 
 
 //    system ! AgentRequestMessage(

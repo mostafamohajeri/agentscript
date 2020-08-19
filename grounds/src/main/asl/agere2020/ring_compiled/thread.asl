@@ -3,7 +3,7 @@
 !init.
 
 +!init =>
-    N = "thread" + ((#executionContext.name.replaceAll("thread","").toInt % 10) + 1);
+    N = "thread" + ((#executionContext.name.replaceAll("thread","").toInt % #benchmark.ring_data.nb_agents) + 1);
     +neighbor(N).
 
 +!token(0) =>

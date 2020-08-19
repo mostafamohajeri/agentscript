@@ -1,8 +1,7 @@
-package bb.exp
+package bb.expstyla.exp
 
-import it.unibo.tuprolog.core.{Atom, Struct, Term, Var}
-import it.unibo.tuprolog.unify.Unificator
-import prolog.terms.Fun
+import prolog.builtins.is
+import prolog.terms.{Conj, Fun, Real, Term, Var,Const}
 
 import scala.jdk.CollectionConverters._
 
@@ -24,20 +23,18 @@ case class StructTerm(functor: String,terms: Seq[GenericTerm]) extends GenericTe
 
   override def toString: String = getStringValue
 
-  def get() (implicit db:Seq[StructTerm], unificator : Unificator): Seq[Substitution] = {
-     db.filter( t => unificator.`match`(this.struct,t.struct))
-       .map(t => unificator.mgu(this.struct,t.struct))
-       .map(s => {
-         Substitution(
-         s.asScala.map({
-           case (k,v) => k.getName -> GenericTerm.create(v)
-         }).toMap
-         )
-       })
+
+  def struct : Term =  {
+    if(terms.size ==0)
+      new Const(functor)
+    else {
+    functor match {
+      case "," => Conj.build(terms(0).getTermValue, terms(1).getTermValue)
+      case "not" => new Fun("\\+", terms.map(t => t.getTermValue).toArray)
+      case "\\=" => new Fun("=\\=", terms.map(t => t.getTermValue).toArray)
+      case _ => new Fun(functor, terms.map(t => t.getTermValue).toArray)
+    }
+    }
   }
-
-  lazy val struct = Struct.of(functor,terms.map(t => t.getTermValue).toList.asJava)
-
-  lazy val stylaStruct = new Fun(functor,terms)
 
 }

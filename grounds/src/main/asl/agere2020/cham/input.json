@@ -1,13 +1,13 @@
 {
   "agents": [
     {
-      "name" : "thread",
-      "script_file" : "thread.asl",
+      "name" : "cham",
+      "script_file" : "cham.asl",
       "number": 500
     } ,
     {
-      "name" : "master",
-      "script_file" : "master.asl",
+      "name" : "broker",
+      "script_file" : "broker.asl",
       "number": 1
     }
   ]

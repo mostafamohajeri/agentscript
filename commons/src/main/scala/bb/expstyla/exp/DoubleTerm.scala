@@ -1,5 +1,7 @@
-package bb.exp
-import it.unibo.tuprolog.core.{Real, Term, Var}
+package bb.expstyla.exp
+
+import prolog.terms.{Real, Term, Var}
+
 
 case class DoubleTerm(value: Double) extends GenericTerm {
   override def getIntValue: Int = value.intValue
@@ -10,7 +12,7 @@ case class DoubleTerm(value: Double) extends GenericTerm {
 
   override def getBooleanValue: Boolean = throw new TypeException()
 
-  override def getTermValue: Term = Real.of(value)
+  override def getTermValue: Term = new Real(value)
 
   override def getVarValue: Var = throw new TypeException()
 

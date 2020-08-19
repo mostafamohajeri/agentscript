@@ -1,4 +1,4 @@
-package cham_test
+package benchmark
 
  import _root_.scala.collection.mutable.HashMap
 
@@ -212,7 +212,7 @@ package cham_test
 
                       def plan0(vars: VarMap)(implicit executionContext: ExecutionContext): Unit = {
 
-                                           vars += ("N" ->  (StringTerm("thread") +  ( (executionContext.name.replaceAll(StringTerm("thread"),StringTerm("")).toInt % cham_test.ring_data.nb_agents)  + IntTerm(1)) ) )
+                                           vars += ("N" ->  (StringTerm("thread") +  ( (executionContext.name.replaceAll(StringTerm("thread"),StringTerm("")).toInt % benchmark.ring_data.nb_agents)  + IntTerm(1)) ) )
                                            BeliefUpdateAction.execute(BeliefUpdateAction.Parameters("+", StructTerm("neighbor",Seq[GenericTerm](vars("N")))))
 
 

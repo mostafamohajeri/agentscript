@@ -1,6 +1,6 @@
 package std
 
-import bb.exp.{BooleanTerm, DoubleTerm, IntTerm, StringTerm}
+import bb.expstyla.exp.{BooleanTerm, DoubleTerm, GenericTerm, IntTerm, StringTerm}
 import it.unibo.tuprolog.core.impl.IntegerImpl
 import it.unibo.tuprolog.core.{Atom, Integer, Numeric, Real, Term, Truth}
 
@@ -40,22 +40,30 @@ object converters {
   implicit def Native2Term(x: Int): IntTerm =
     IntTerm(x)
 
+  implicit def Native2Term(x: Long): IntTerm =
+    IntTerm(x.toInt)
+
   implicit def Native2Term(x: Double): DoubleTerm =
     DoubleTerm(x)
 
 
-  implicit def Term2Native(x: StringTerm): StringTerm =
+  implicit def Term2String(x: StringTerm): String =
     x.getStringValue
 
-  implicit def Term2Native(x: BooleanTerm): BooleanTerm =
+  implicit def Term2Boolean(x: BooleanTerm): Boolean =
     x.getBooleanValue
 
-  implicit def Term2Native(x: IntTerm): IntTerm =
+  implicit def Term2Int(x: IntTerm): Int =
     x.getIntValue
 
-  implicit def Term2Native(x: DoubleTerm): DoubleTerm =
+  implicit def Term2Double(x: DoubleTerm): Double =
     x.getDoubleValue
 
+
+  def asDouble(genericTerm: GenericTerm): Double = genericTerm.getDoubleValue;
+  def asInteger(genericTerm: GenericTerm): Int = genericTerm.getIntValue;
+  def asBoolean(genericTerm: GenericTerm): Boolean = genericTerm.getBooleanValue;
+  def asString(genericTerm: GenericTerm): String = genericTerm.getStringValue;
 
 //  implicit def Int2Numeric(x: Int): Numeric =
 //    Numeric.of(x)

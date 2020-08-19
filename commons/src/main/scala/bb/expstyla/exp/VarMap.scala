@@ -1,6 +1,4 @@
-package bb.exp
-
-import it.unibo.tuprolog.core.Var
+package bb.expstyla.exp
 
 import scala.collection.mutable
 
@@ -16,6 +14,7 @@ case class VarMap(vars : mutable.HashMap[String,GenericTerm] = mutable.HashMap()
   }
 
   def addOne(elem: (String, GenericTerm)): VarMap.this.type = {vars += elem; this;}
+  def remOne(elem: String): VarMap.this.type = {vars -= elem; this;}
 
   def #=(elem: (String, GenericTerm)) : VarMap.this.type =
     vars(elem._1) match {
@@ -26,6 +25,7 @@ case class VarMap(vars : mutable.HashMap[String,GenericTerm] = mutable.HashMap()
   def ++(varMap: VarMap) : VarMap = VarMap(this.vars ++ varMap.vars)
 
   def +=(elem: (String, GenericTerm)) : VarMap.this.type = this.addOne(elem)
+  def -=(elem: String) : VarMap.this.type = this.remOne(elem)
   def +=+(elem: (String, GenericTerm)) : BooleanTerm = { this.addOne(elem); BooleanTerm(true) }
 
   def clear(): Unit = vars.clear()

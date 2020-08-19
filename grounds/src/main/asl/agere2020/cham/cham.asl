@@ -13,7 +13,7 @@ complement(C, C, C).
 !set_and_print_color.
 
 +!set_and_print_color =>
-    C = #cham_test.cham_data.color(#myName);
+    C = #chams.ChameneosData.color(#myName.replaceAll("cham","").toInt);
     #println(C);
     #achieve("broker1",ready);
     +color(C).
@@ -37,4 +37,5 @@ complement(C, C, C).
     +nb_meetings_same_color(N + 1).
 
 +!print_result : nb_meetings_same_color(N) && nb_meetings(N2) =>
-    #println("meetings: " + N2 + " | same name: " + N).
+    #println("meetings: " + N2 + " | same name: " + N);
+    #achieve("broker1",done).

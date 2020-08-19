@@ -1,11 +1,12 @@
 nb_meetings(1000).
 nb_ready(0).
+nb_chams(500).
 
 @atomic
-+!ready : nb_ready(N) =>
++!ready : nb_ready(N) && nb_chams(N1) =>
     -nb_ready(N);
     +nb_ready(N + 1);
-    if( (N + 1) == 500 )
+    if( (N + 1) == N1 )
     {
         #broadcast_achieve(go_mall);
     }
@@ -26,9 +27,20 @@ nb_ready(0).
 @atomic
 +!meet(_) : not finished =>
     #broadcast_achieve(print_result);
-    +finished;
-    #println("done");
-    #std.coms.exit().
+    +finished.
 
 +!meet(_) => #print("").
+
+
+@atomic
++!done : nb_chams(T) =>
+    if(T == 1) {
+        #println("done at:");
+        #println(#System.currentTimeMillis());
+        #std.coms.exit();
+    };
+    -nb_chams(T);
+    +nb_chams(T - 1)
+.
+
 

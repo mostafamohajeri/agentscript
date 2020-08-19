@@ -1,6 +1,6 @@
-agents(10).
-tokens(250).
-token_value(10).
+agents(#benchmark.ring_data.nb_agents).
+tokens(#benchmark.ring_data.nb_tokens).
+token_value(#benchmark.ring_data.nb_hops).
 
 !init.
 

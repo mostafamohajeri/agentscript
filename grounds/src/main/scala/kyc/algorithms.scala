@@ -3,7 +3,7 @@ package kyc
 import it.unibo.tuprolog.core.Term
 
 object algorithms {
-  def risk(bank: String,  sbi : Term, country:Term) : Int = {
+  def risk(bank: String,  sbi : String, country:String) : Int = {
     if(country.toString == "wonderland")
       0
     else if(sbi.toString == "queen")

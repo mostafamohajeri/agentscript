@@ -1,14 +1,14 @@
-my_sib(#toTerm(#kyc.data_gen.customer_data(#myName).sib)).
-my_name(#toTerm(#kyc.data_gen.customer_data(#myName).name)).
-my_country(#toTerm(#kyc.data_gen.customer_data(#myName).country)).
+my_sib(#kyc.data_gen.customer_data(#myName).sib).
+my_name(#kyc.data_gen.customer_data(#myName).name).
+my_country(#kyc.data_gen.customer_data(#myName).country).
 
 acceptable_purpose("KYC").
 acceptable_purpose("research").
 
 
-!apply_to_bank(#toTerm(#kyc.data_gen.customer_data(#myName).preferred_bank)).
+!apply_to_bank(#kyc.data_gen.customer_data(#myName).preferred_bank).
 
-+!apply_to_bank(Bank) : #toTerm(#myName) == #toTerm(#executionContext.sender.name) =>
++!apply_to_bank(Bank) : #myName == #executionContext.sender.name =>
     #println(#myName + " applying to " + Bank);
     +applying_to(Bank);
     #achieve(Bank,register)

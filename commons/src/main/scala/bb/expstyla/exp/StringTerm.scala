@@ -1,5 +1,6 @@
-package bb.exp
-import it.unibo.tuprolog.core.{Atom, Term, Var}
+package bb.expstyla.exp
+
+import prolog.terms.{Const, Real, Term, Var}
 
 case class StringTerm(value: String) extends GenericTerm {
   override def getIntValue: Int = value.toInt
@@ -10,7 +11,7 @@ case class StringTerm(value: String) extends GenericTerm {
 
   override def getBooleanValue: Boolean = value.toBoolean
 
-  override def getTermValue: Term = Atom.of(value)
+  override def getTermValue: Term = new Const(value)
 
   override def getVarValue: Var = throw new TypeException()
 

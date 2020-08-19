@@ -9,13 +9,14 @@ object MAS {
 
   def apply(): Behavior[IMessage] = {
     Behaviors.setup { context => {
-      ASHttpServer.create(context)
+//      ASHttpServer.create(context)
       var agentsNotStarted: Seq[ActorRef[IMessage]] = Seq()
       var agentsNotInitialized : Int = 0
       val resolver = ActorRefResolver(context.system)
       var t0 = System.nanoTime();
       var t1 : Long = System.nanoTime()
       var yellowPages: ActorRef[IMessage] = context.spawn(YellowPages.apply(), "yp");
+      yellowPages ! ActorSubscribeMessage("__MAS",context.self)
       Behaviors.receive { (context, message) =>
         message match {
           case AgentRequestMessage(types) =>
@@ -30,6 +31,7 @@ object MAS {
                   yellowPages ! ActorSubscribeMessage(name, ref)
                 }
             }
+            Behaviors.same
           case ReadyMessage(s) =>
 
             agentsNotInitialized -= 1
@@ -39,13 +41,16 @@ object MAS {
               agentsNotStarted.par.foreach(a => a ! StartMessage())
               agentsNotStarted = Seq[ActorRef[IMessage]]()
             }
+            Behaviors.same
+          case SystemExitMessage() =>
+            Behaviors.stopped
 
           case _=> throw new RuntimeException(f"can no handle message of type $message")
 //          case StartMessage() =>
 //            agentsNotStarted.foreach(a => a ! StartMessage())
 //            agentsNotStarted = Seq[ActorRef[IMessage]]()
         }
-        Behaviors.same
+
       }
     }
     }

@@ -1,9 +1,8 @@
 
-!give_speech(10000).
+!ask_yourself(100000).
 
-+!give_speech(X) =>
-    for(B in between(0,X,B)) {
-          #broadcast_achieve(listen(B));
-        };
-    #println("done")
++!ask_yourself(0) => #println("done: " + #executionContext.agentLogger.timeTaken).
+
++!ask_yourself(X) =>
+    !ask_yourself(X)
    .

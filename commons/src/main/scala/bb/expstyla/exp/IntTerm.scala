@@ -1,5 +1,6 @@
-package bb.exp
-import it.unibo.tuprolog.core.{Integer, Term, Var}
+package bb.expstyla.exp
+
+import prolog.terms.{Real, SmallInt, Term, Var}
 
 case class IntTerm(value: Int) extends GenericTerm {
   override def getIntValue: Int = value
@@ -10,7 +11,7 @@ case class IntTerm(value: Int) extends GenericTerm {
 
   override def getBooleanValue: Boolean = throw new TypeException()
 
-  override def getTermValue: Term = Integer.of(value)
+  override def getTermValue: Term = new SmallInt(value)
 
   override def getVarValue: Var = throw new TypeException()
 

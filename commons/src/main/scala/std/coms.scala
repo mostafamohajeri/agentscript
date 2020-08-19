@@ -8,6 +8,7 @@ import scala.collection.parallel.CollectionConverters._
 object coms {
 
   var total_send_time = 0
+  var total = 0;
 
   def inform(destName: Any, message: Any)(implicit executionContext: ExecutionContext): Any = {
     executionContext.yellowPages !
@@ -39,22 +40,27 @@ object coms {
 
   def achieve(destName: Any, message: Any)(implicit executionContext: ExecutionContext): Any = {
 
+
     val destination = YellowPages.agentsPersistentCentral.get(destName.toString)
-//    if (destination.isEmpty)
-//      executionContext.agent.log.error(f"agent $destName does not exist")
-//    else
-    println(executionContext.name + " --[" + message + "]--> " + destName)
+
+
+
+    if (destination.isEmpty)
+      println(f"agent $destName does not exist")
+    else {
+//      println(executionContext.name + " --[" + message + "]--> " + destName)
       destination.get !
         GoalMessage(
           message,
           executionContext.name,
           executionContext.agent.self
         )
+    }
   }
 
 
   def broadcast_achieve(message: Any)(implicit executionContext: ExecutionContext): Any =
-    YellowPages.agentsPersistentCentral.par.filter(a => executionContext.name != a._1).foreach(
+    YellowPages.agentsPersistentCentral.par.filter(a => executionContext.name != a._1 && !a._1.equals("__MAS")).foreach(
       a => a._2 ! GoalMessage(
         message,
         executionContext.name,
@@ -63,12 +69,25 @@ object coms {
     )
 
   def broadcast_achieve(reg: String, message: Any)(implicit executionContext: ExecutionContext): Any =
-    YellowPages.agentsPersistentCentral.par.filter(a => executionContext.name != a._1 && a._1.matches(reg)).foreach(
+
+    YellowPages.agentsPersistentCentral.par.filter(a => executionContext.name != a._1 && a._1.matches(reg) && !a._1.equals("__MAS")).foreach(
       a => a._2 ! GoalMessage(
         message,
         executionContext.name,
         executionContext.agent.self
       )
     )
+
+  def exit()(implicit executionContext: ExecutionContext): Unit = {
+//    println("trying to exit")
+    executionContext.agent.system.terminate()
+    //YellowPages.agentsPersistentCentral("__MAS") ! SystemExitMessage()
+
+  }
+
+
+  def find_neighbor() (implicit executionContext: ExecutionContext) : String = {
+    "thread" + executionContext.name.replaceAll("thread","").toInt + 1
+  }
 
 }

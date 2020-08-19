@@ -1,27 +1,25 @@
-agents(10).
-tokens(250).
-token_value(10).
+ended(0).
+t_total(100).
 
 !init.
 
-+!init : agents(W) && tokens(T) && token_value(V) =>
-    #println("start at:");
++!init : t_total(T) =>
+    #println("done at:");
     #println(#System.currentTimeMillis());
-    +not_done(T);
     for(I in between(1,T,I)) {
-          J = #std.math.ceil(I * ( W / T ));
-          #achieve("thread"+J,token(V));
+          W = #math.random() * 2;
+          #achieve("ponger1",pong(W));
         }
    .
 
 @atomic
-+!done : not_done(T) =>
-    if(T == 1) {
++!finished : ended(I) && t_total(T) =>
+    if(T == I + 1) {
         #println("done at:");
         #println(#System.currentTimeMillis());
         #std.coms.exit();
     };
-    -not_done(T);
-    +not_done(T - 1)
+    -ended(I);
+    +ended(I + 1)
 .
 

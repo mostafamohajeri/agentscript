@@ -1,3 +1,4 @@
 package bb.exp
 
-case class Substitution()
+case class Substitution(map : Map[String,GenericTerm]) {
+}

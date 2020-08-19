@@ -3,13 +3,11 @@
 !init.
 
 +!init =>
-    N = "thread" + ((#executionContext.name.replaceAll("thread","").toInt % 500) + 1);
-    #println(N);
+    N = "thread" + ((#executionContext.name.replaceAll("thread","").toInt % 10) + 1);
     +neighbor(N).
 
 +!token(0) =>
-    #println("done");
-    #std.coms.exit().
+    #achieve("master1",done).
 
 +!token(T) : neighbor(N) =>
       #achieve(N,token(T - 1))
