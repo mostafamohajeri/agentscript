@@ -1,0 +1,5 @@
+package bb
+
+class IBeliefBase {
+
+}

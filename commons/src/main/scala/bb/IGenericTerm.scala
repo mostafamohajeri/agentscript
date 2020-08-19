@@ -1,0 +1,7 @@
+package bb
+
+trait IGenericTerm {
+
+
+
+}
