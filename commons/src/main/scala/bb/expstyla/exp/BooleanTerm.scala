@@ -19,5 +19,7 @@ case class BooleanTerm(value: Boolean) extends GenericTerm {
 
   override def toString: String = value.toString
 
+  override def getObjectValue: Object = value.toString
+
   lazy val truth = if(value) true_() else fail_()
 }

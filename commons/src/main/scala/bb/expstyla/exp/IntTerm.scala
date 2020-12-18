@@ -2,7 +2,7 @@ package bb.expstyla.exp
 
 import prolog.terms.{Real, SmallInt, Term, Var}
 
-case class IntTerm(value: Int) extends GenericTerm {
+case class  IntTerm(value: Int) extends GenericTerm {
   override def getIntValue: Int = value
 
   override def getDoubleValue: Double = value.doubleValue()
@@ -14,6 +14,8 @@ case class IntTerm(value: Int) extends GenericTerm {
   override def getTermValue: Term = new SmallInt(value)
 
   override def getVarValue: Var = throw new TypeException()
+
+  override def getObjectValue: Object = value.toString
 
   override def toString: String = value.toString
 }

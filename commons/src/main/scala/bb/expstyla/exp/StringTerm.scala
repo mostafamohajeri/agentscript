@@ -15,5 +15,7 @@ case class StringTerm(value: String) extends GenericTerm {
 
   override def getVarValue: Var = throw new TypeException()
 
+  override def getObjectValue: Object = value
+
   override def toString: String = value.toString
 }

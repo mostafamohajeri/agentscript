@@ -2,7 +2,7 @@ package infrastructure
 
 import akka.actor.typed.{ActorRef, ActorRefResolver}
 import akka.actor.typed.scaladsl.ActorContext
-import bb.{BeliefBaseKT, BeliefBaseStyla, IBeliefBase, IGenericTerm}
+import bb.{BeliefBaseStyla, IBeliefBase, IGenericTerm}
 
 
 case class ExecutionContext(
@@ -31,6 +31,7 @@ object ExecutionContext {
       name,agentType,agent,yellowPages,beliefBase,agentLogger,null,null
     )
   }
+
   def apply (
               name: String,
               agentType: String,

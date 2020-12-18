@@ -1,41 +1,40 @@
-employee(#kyc.data_gen.bank_data(#myName).employee(0)).
+!application_request("KYC").
 
++!initiate(Name,Employee,SensSetting,RiskSetting) =>
+    +name(Name).
 
-+!register : employee(E) =>
-    #achieve(E,interview(#executionContext.sender.name))
-.
++!initiate_sharing(Broker) =>
+    +broker(Broker).
 
-+!interview_complete(Client,I,true) : E = #executionContext.sender.name && employee(E) && not client(Client) =>
-    #println("interview complete for " + Client);
-    !register_client(Client,I)
-.
++!employ(Employee,Risk) =>
+    +employee(Employee).
 
-+!interview_complete(Client,I,true) : E = #executionContext.sender.name && employee(E) && client(Client) =>
-    #println("interview complete for " + Client);
-    !update_client(Client,I)
-.
++!application_request(Consent) =>
+    +consents(#executionContext.sender.name,Consent).
 
-+!register_client(C,I) : employee(E) =>
-    +information(C,I);
-    +client(Client);
-    #achieve(E,do_risk_analysis(C,I));
-    #achieve(C,be_informed_of_acceptance(#executionContext.name))
-.
++!interview_completed(Profile) =>
+    +interview_completed(Profile).
 
-+!update_client(C,I) : employee(E) =>
-    -information(C,_);
-    +information(C,I);
-    #achieve(E,do_risk_analysis(C,I))
-.
++!risk_assessment_completed(Risk) =>
+    +interview_completed(Profile).
 
++!initiate_compute_risk(Client) =>
+    #println(Client).
 
-+!assign_risk(C,R) =>
-    -risk(C,_);
-    +risks(C,R);
-    #println("risk " + R + " was assigned to "+ C)
-.
++!computed_risk(Client,Risk) =>
+    #println(Client,Risk).
 
++!sbi_update(SBI) =>
+    #println(SBI).
 
-+!need_to_update_data : client(#executionContext.sender.name) && employee(E) =>
-    #achieve(E,interview(#executionContext.sender.name))
-.
++!duty_to_share(Client,Attr) =>
+    #println("consider sharing").
+
++!assessment_duty(Bank,Employee,Client_ID) =>
+    #println(Bank,Employee,Client_ID).
+
++!assessment_duty_violation(Bank,Employee,Client_ID) =>
+    #println(Bank,Employee,Client_ID).
+
++!invalid_risk(Employee,Client,Risk) =>
+    #println(Employee,Client,Risk).

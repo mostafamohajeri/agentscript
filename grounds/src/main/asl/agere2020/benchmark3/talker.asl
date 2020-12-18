@@ -9,9 +9,15 @@ ponged(0).
 +!ping =>
     #achieve(#executionContext.sender.name,pong).
 
+
+@atomic
 +!pong : ponged(X) =>
     +ponged(X + 1) ;
-    #println(#myName +" : I was ponged " + X + " at " + #executionContext.agentLogger.timeTaken)
+    -ponged(X) ;
+    #println(#myName +" : I was Sponged " + X + " at " + #executionContext.agentLogger.timeTaken);
+    if ( X < 5 ) {
+       #broadcast_achieve(ping);
+    }
     .
 
 

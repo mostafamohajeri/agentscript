@@ -1,8 +1,9 @@
-package bb.exp
+package bb.expstyla.exp
 
-import it.unibo.tuprolog.core.{Term, Var}
+import prolog.terms.{Const, Term, Var}
 
-case class NativeStructTerm(value: Term) extends GenericTerm {
+case class ObjectTerm[M](value: M) extends GenericTerm {
+
   override def getIntValue: Int = throw new TypeException()
 
   override def getDoubleValue: Double = throw new TypeException()
@@ -11,9 +12,13 @@ case class NativeStructTerm(value: Term) extends GenericTerm {
 
   override def getBooleanValue: Boolean = throw new TypeException()
 
-  override def getTermValue: Term = value
+  override def getTermValue: Term = throw new TypeException()
 
   override def getVarValue: Var = throw new TypeException()
+
+  override def getObjectValue: Object = value.asInstanceOf[Object]
+
+  def getTHEValue: M = value
 
   override def toString: String = value.toString
 }

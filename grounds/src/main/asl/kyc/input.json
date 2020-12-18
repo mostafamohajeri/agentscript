@@ -1,0 +1,19 @@
+{
+  "agents": [
+    {
+      "name" : "BankA",
+      "script_file" : "bank.asl",
+      "number": 2
+    },
+    {
+      "name" : "BankAEmployee",
+      "script_file" : "employee.asl",
+      "number": 1
+    },
+    {
+      "name" : "Sanchez",
+      "script_file" : "client.asl",
+      "number": 1
+    }
+  ]
+}

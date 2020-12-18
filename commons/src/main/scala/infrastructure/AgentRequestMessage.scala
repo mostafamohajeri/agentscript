@@ -1,4 +1,7 @@
 package infrastructure
 
-case class AgentRequestMessage(agentTypes: Seq[AgentRequest]) extends Message() {
+import akka.actor.typed.ActorRef
+
+case class AgentRequestMessage(agentTypes: Seq[AgentRequest],respondTo: Option[ActorRef[IMessage]] = Option.empty) extends
+  Message(respondTo) {
 }

@@ -1,5 +1,5 @@
 package std
-import it.unibo.tuprolog.core.{Numeric, Struct, Term}
+
 import Numeric._
 import bb.expstyla.exp.{DoubleTerm, GenericTerm, IntTerm}
 

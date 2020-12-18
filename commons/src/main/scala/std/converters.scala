@@ -1,8 +1,7 @@
 package std
 
-import bb.expstyla.exp.{BooleanTerm, DoubleTerm, GenericTerm, IntTerm, StringTerm}
-import it.unibo.tuprolog.core.impl.IntegerImpl
-import it.unibo.tuprolog.core.{Atom, Integer, Numeric, Real, Term, Truth}
+import bb.expstyla.exp.{BooleanTerm, DoubleTerm, GenericTerm, IntTerm, ObjectTerm, StringTerm}
+
 
 object converters {
 
@@ -64,6 +63,9 @@ object converters {
   def asInteger(genericTerm: GenericTerm): Int = genericTerm.getIntValue;
   def asBoolean(genericTerm: GenericTerm): Boolean = genericTerm.getBooleanValue;
   def asString(genericTerm: GenericTerm): String = genericTerm.getStringValue;
+  def w[M](obj: M) : ObjectTerm[M] = ObjectTerm(obj)
+  def uw[M](obj: GenericTerm) : M = obj.asInstanceOf[ObjectTerm[M]].getTHEValue
+
 
 //  implicit def Int2Numeric(x: Int): Numeric =
 //    Numeric.of(x)

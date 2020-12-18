@@ -2,7 +2,7 @@ package bb
 
 import java.util
 
-import bb.exp.VarTerm
+
 import bb.expstyla.exp.{GenericTerm, StringTerm, StructTerm}
 import infrastructure.QueryResponse
 import prolog.LogicEngine

@@ -17,6 +17,8 @@ case class VarTerm(value: String) extends GenericTerm {
 
   override def getVarValue: Var = variable
 
+  override def getObjectValue: Object = value
+
   override def toString: String = value.toString
 
   lazy val variable = new Var(value)

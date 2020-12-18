@@ -21,6 +21,8 @@ case class StructTerm(functor: String,terms: Seq[GenericTerm]) extends GenericTe
 
   override def getVarValue: Var = throw new TypeException()
 
+  override def getObjectValue: Object = struct
+
   override def toString: String = getStringValue
 
 

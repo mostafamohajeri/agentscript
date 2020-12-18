@@ -8,8 +8,7 @@ import akka.actor.typed.{ActorRefResolver, ActorSystem}
 import akka.actor.typed.ActorSystem
 import com.typesafe.config.ConfigFactory
 import infrastructure.{AgentRequest, AgentRequestMessage, IMessage, MAS}
-import it.unibo.tuprolog.core.{Atom, Real, Term, Truth}
-import it.unibo.tuprolog.unify.Unificator
+
 
 import scala.collection.mutable
 import scala.io.Source

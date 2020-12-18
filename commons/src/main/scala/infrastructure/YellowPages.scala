@@ -19,9 +19,9 @@ object YellowPages {
           case ActorSubscribeMessage(name, ref) =>
             agentsPersistent.put(name, ref)
             agentsPersistentCentral.put(name, ref)
-          case ActorMessage(d, m, s_n, s_r) =>
+          case ActorMessage(d, m, s_r) =>
             m match {
-              case BeliefMessage(b, _, _) =>
+              case BeliefMessage(b, _) =>
                 //              println (f" $s_n wants to send belief $b to $d")
                 if (agentsPersistent.contains(d))
                   agentsPersistent(d) ! m

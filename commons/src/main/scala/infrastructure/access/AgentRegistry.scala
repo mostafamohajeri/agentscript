@@ -7,19 +7,9 @@ import akka.actor.typed.ActorRef
 import akka.actor.typed.Behavior
 import akka.actor.typed.scaladsl.{ActorContext, Behaviors}
 import infrastructure.{ExecutionContext, IMessage, YellowPages}
-import it.unibo.tuprolog.core.Struct
-import it.unibo.tuprolog.parser.{PrologLexer, PrologParser, PrologParserBaseVisitor}
-import it.unibo.tuprolog.parser
-import it.unibo.tuprolog.Info
-import it.unibo.tuprolog.core.Struct
-import it.unibo.tuprolog.core.parsing.ParseException
-import it.unibo.tuprolog.core.parsing.TermParser
-import it.unibo.tuprolog.solve.Solver
-import it.unibo.tuprolog.solve
-import it.unibo.tuprolog.theory.Theory
+
 
 import scala.collection.immutable
-import it.unibo.tuprolog.parser.dynamic.DynamicLexer
 import org.antlr.v4.runtime.{BufferedTokenStream, CharStreams, IntStream, Token, TokenStream}
 //#user-case-classes
 final case class PerformCommand(agent: String, command: String)
@@ -34,7 +24,7 @@ object AgentRegistry {
 
 
 
-  val parser = TermParser.getWithStandardOperators
+
 
   def apply(parent: ActorContext[IMessage]): Behavior[Command] = registry(parent: ActorContext[IMessage])
 
@@ -45,7 +35,7 @@ object AgentRegistry {
         message match {
           case Achieve(command, replyTo) =>
             try {
-              val t = parser.parseStruct(command.command)
+              val t = null
               replyTo ! ActionPerformed(s"Command ${command.toString} created. and it was like ${t}")
               std.coms.achieve(command.agent, t)
             } catch {

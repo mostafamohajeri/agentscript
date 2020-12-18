@@ -145,7 +145,7 @@ abstract class GenericTerm extends IGenericTerm {
   def unary_! : GenericTerm = {
     (this) match {
       case BooleanTerm(l) => BooleanTerm(!l)
-      case l: Any => throw new TypeException(f"Can not apply operator {not} to types ${l.getClass}" )
+      case l: Any => throw new TypeException(f"Can not apply operator {!} to types ${l.getClass}" )
     }
   }
 
@@ -153,7 +153,7 @@ abstract class GenericTerm extends IGenericTerm {
     (this) match {
       case IntTerm(l) => IntTerm(-l)
       case DoubleTerm(l) => DoubleTerm(-l)
-      case l: Any => throw new TypeException(f"Can not apply operator {not} to types ${l.getClass}" )
+      case l: Any => throw new TypeException(f"Can not apply operator {-} to types ${l.getClass}" )
     }
   }
 
@@ -170,6 +170,7 @@ abstract class GenericTerm extends IGenericTerm {
   def getBooleanValue: Boolean
   def getTermValue : Term
   def getVarValue  : Var
+  def getObjectValue : Object
 
 }
 
@@ -182,9 +183,9 @@ object GenericTerm {
   def create(value : Var): GenericTerm = VarTerm(value.v_name)
   def create(value : Term): GenericTerm =  {
     value match {
-      case a: Const => create(a.sym)
       case true_() => create(true)
       case fail_() => create(false)
+      case a: Const => create(a.sym)
       case a: Fun => create(a)
       case a: SmallInt => create(a.getValue.toInt)
       case a: Real => create(a.getValue.toDouble)
