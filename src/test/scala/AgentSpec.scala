@@ -51,6 +51,7 @@ class AgentSpec extends ScalaTestWithActorTestKit with AnyWordSpecLike {
       val response = prob.receiveMessage()
 
       assert(response.isInstanceOf[GoalMessage])
+      assert(response.asInstanceOf[GoalMessage].p_belief.asInstanceOf[StructTerm].functor.equals("kill_me"))
 
     }
   }

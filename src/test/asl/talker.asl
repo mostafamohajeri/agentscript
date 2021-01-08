@@ -4,6 +4,6 @@
 .
 
 +!ask_me_something =>
-    #achieve(#executionContext.sender.ref,say_hi)
+    #achieve(#executionContext.sender.ref,kill_me)
 .
 
