@@ -12,7 +12,6 @@ object MAS {
 //      ASHttpServer.create(context)
       var agentsNotStarted: Seq[ActorRef[IMessage]] = Seq()
       var agentsNotInitialized : Int = 0
-
       val resolver = ActorRefResolver(context.system)
       var yellowPages: ActorRef[IMessage] = context.spawn(YellowPages.apply(), "yp");
       yellowPages ! ActorSubscribeMessage("__MAS",context.self)
