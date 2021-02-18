@@ -1,5 +1,3 @@
 package infrastructure
 
-trait IPlan {
-
-}
+trait IPlan {}

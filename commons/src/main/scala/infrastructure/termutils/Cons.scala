@@ -1,4 +1,3 @@
 package infrastructure.termutils
 
-trait Cons[T] extends Seq[T] {
-}
+trait Cons[T] extends Seq[T] {}

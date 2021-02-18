@@ -9,50 +9,65 @@ class AgentSpec extends ScalaTestWithActorTestKit with AnyWordSpecLike {
     val mas = testKit.spawn(MAS(), "MAS")
     mas ! AgentRequestMessage(
       Seq(
-        AgentRequest(asl.talker.Agent, "talker", 1),
-      ))
+//        AgentRequest(asl.talker.Agent, "talker", 1),
+        AgentRequest(asl.greeter.Agent, "greeter", 1),
+      ),null)
     Thread.sleep(3000)
   }
+//
+//  "An agent" should {
+//    "exist in yellow pages if it was created before" in {
+//      eventually (
+//        assert(YellowPages.agents.contains("talker"))
+//      )
+//    }
+//  }
 
-  "An agent" should {
-    "exist in yellow pages if it was created before" in {
-      eventually (
-        assert(YellowPages.agentsPersistentCentral.contains("talker"))
-      )
-    }
-  }
+ "An agent" should {
+  //  "respond with a IntentionDoneMessage if it has a plan for it" in {
+  //    val prob = testKit.createTestProbe[IMessage]()
+  //    assert(YellowPages.agents.contains("talker"))
 
-  "An agent" should {
-    "respond with a IntentionDoneMessage if it has a plan for it" in {
+  //    YellowPages.agents("talker") ! GoalMessage(StructTerm("say_hi",Seq()),AkkaMessageSource(prob.ref))
+
+  //    val response = prob.receiveMessage()
+
+  //    assert(response.isInstanceOf[IntentionDoneMessage])
+
+  //  }
+
+   "respond with a IntentionErrorMessage if it has no plan for it" in {
+     val prob = testKit.createTestProbe[IMessage]()
+
+     YellowPages.agents("greeter") ! GoalMessage(StructTerm("something_else",Seq()),AkkaMessageSource(prob.ref))
+
+    val message = prob.receiveMessage()
+
+     assert(message.isInstanceOf[IntentionErrorMessage])
+     assert(message.asInstanceOf[IntentionErrorMessage].cause equals NoPlanMessage())
+   }
+
+  //  "send a GoalMessage if the plan says so" in {
+  //    val prob = testKit.createTestProbe[IMessage]()
+
+  //    YellowPages.agents("talker") tell GoalMessage(StructTerm("hi",Seq()),prob.ref)
+
+  //    val response = prob.receiveMessage()
+
+  //    assert(response.asInstanceOf[GoalMessage].p_belief.toString  equals  "hello")
+  //    assert(response.isInstanceOf[GoalMessage])
+  //    assert(response.asInstanceOf[GoalMessage].p_belief.asInstanceOf[StructTerm].functor.equals("hello"))
+
+  //  }
+
+
+ }
+
+  "A greeter agent" should {
+    "say greetings in response to a hello" in {
       val prob = testKit.createTestProbe[IMessage]()
-      assert(YellowPages.agentsPersistentCentral.contains("talker"))
-
-      YellowPages.agentsPersistentCentral("talker") ! GoalMessage(StructTerm("say_hi",Seq()),prob.ref)
-
-      val response = prob.receiveMessage()
-
-      assert(response.isInstanceOf[IntentionDoneMessage])
-
-    }
-
-    "respond with a IntentionErrorMessage if it has no plan for it" in {
-      val prob = testKit.createTestProbe[IMessage]()
-
-      YellowPages.agentsPersistentCentral("talker") ! GoalMessage(StructTerm("say_bye",Seq()),prob.ref)
-
-      prob.expectMessage(IntentionErrorMessage(NoPlanMessage()))
-    }
-
-    "send a GoalMessage if the plan says so" in {
-      val prob = testKit.createTestProbe[IMessage]()
-
-      YellowPages.agentsPersistentCentral("talker") ! GoalMessage(StructTerm("ask_me_something",Seq()),prob.ref)
-
-      val response = prob.receiveMessage()
-
-      assert(response.isInstanceOf[GoalMessage])
-      assert(response.asInstanceOf[GoalMessage].p_belief.asInstanceOf[StructTerm].functor.equals("kill_me"))
-
+      YellowPages.agents("greeter") ! GoalMessage(StructTerm("hello"),AkkaMessageSource(prob.ref))
+      assert(prob.receiveMessage().asInstanceOf[GoalMessage].content.toString  equals  "greetings")
     }
   }
 

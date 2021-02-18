@@ -2,7 +2,6 @@ package std
 
 import bb.expstyla.exp.{BooleanTerm, DoubleTerm, GenericTerm, IntTerm, ObjectTerm, StringTerm}
 
-
 object converters {
 
   //
@@ -21,14 +20,12 @@ object converters {
 //  implicit def Term2Boolean(x: Term): Boolean =
 //    x.as[Truth].isTrue
 
-
   //
   //  implicit def Real2Integer(x: Real): Integer =
   //    Integer.of(x.getIntValue.toIntExact)
   //
 //    implicit def Integer2Real(x: IntegerImpl): Real =
 //      Real.of(x.getIntValue.toDouble)
-
 
   implicit def Native2Term(x: String): StringTerm =
     StringTerm(x)
@@ -45,7 +42,6 @@ object converters {
   implicit def Native2Term(x: Double): DoubleTerm =
     DoubleTerm(x)
 
-
   implicit def Term2String(x: StringTerm): String =
     x.getStringValue
 
@@ -58,14 +54,12 @@ object converters {
   implicit def Term2Double(x: DoubleTerm): Double =
     x.getDoubleValue
 
-
-  def asDouble(genericTerm: GenericTerm): Double = genericTerm.getDoubleValue;
-  def asInteger(genericTerm: GenericTerm): Int = genericTerm.getIntValue;
+  def asDouble(genericTerm: GenericTerm): Double   = genericTerm.getDoubleValue;
+  def asInteger(genericTerm: GenericTerm): Int     = genericTerm.getIntValue;
   def asBoolean(genericTerm: GenericTerm): Boolean = genericTerm.getBooleanValue;
-  def asString(genericTerm: GenericTerm): String = genericTerm.getStringValue;
-  def w[M](obj: M) : ObjectTerm[M] = ObjectTerm(obj)
-  def uw[M](obj: GenericTerm) : M = obj.asInstanceOf[ObjectTerm[M]].getTHEValue
-
+  def asString(genericTerm: GenericTerm): String   = genericTerm.getStringValue;
+  def w[M](obj: M): ObjectTerm[M]                  = ObjectTerm(obj)
+  def uw[M](obj: GenericTerm): M                   = obj.asInstanceOf[ObjectTerm[M]].getTHEValue
 
 //  implicit def Int2Numeric(x: Int): Numeric =
 //    Numeric.of(x)

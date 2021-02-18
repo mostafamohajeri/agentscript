@@ -2,7 +2,6 @@ package infrastructure
 
 import akka.actor.typed.ActorRef
 
-class Message(sender_ref: Option[ActorRef[IMessage]] = Option.empty) extends IMessage {
-  override def c_sender: ActorRef[IMessage] = sender_ref.get
-  override def c_sender_name: String = sender_ref.get.path.name
+class Message[S <: IMessageSource](src: Option[S] = Option.empty) extends IMessage {
+  override def source = src.get
 }

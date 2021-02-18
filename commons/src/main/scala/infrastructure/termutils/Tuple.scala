@@ -1,4 +1,3 @@
 package infrastructure.termutils
 
-trait FakeTuple[T] extends Seq[T] {
-}
+trait FakeTuple[T] extends Seq[T] {}

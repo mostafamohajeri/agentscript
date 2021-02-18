@@ -21,12 +21,11 @@ class AgentRoutes(registry: ActorRef[AgentRegistry.Command])(implicit val system
   //#import-json-formats
 
   // If ask takes more time than this to complete the request is failed
-  private implicit val timeout = Timeout.create(system.settings.config.getDuration("my-app.routes.ask-timeout"))
-
+  private implicit val timeout =
+    Timeout.create(system.settings.config.getDuration("my-app.routes.ask-timeout"))
 
   def achieveCommand(performCommand: PerformCommand): Future[AgentRegistry.ActionPerformed] =
     registry.ask(Achieve(performCommand, _))
-
 
   //#all-routes
   //#users-get-post
@@ -36,15 +35,15 @@ class AgentRoutes(registry: ActorRef[AgentRegistry.Command])(implicit val system
       concat(
         //#users-get-delete
         pathEnd {
-          concat(
-            post {
-              entity(as[PerformCommand]) { user =>
-                onSuccess(achieveCommand(user)) { performed =>
-                  complete((StatusCodes.Created, performed))
-                }
+          concat(post {
+            entity(as[PerformCommand]) { user =>
+              onSuccess(achieveCommand(user)) { performed =>
+                complete((StatusCodes.Created, performed))
               }
-            })
-        })
+            }
+          })
+        }
+      )
       //#users-get-delete
     }
   //#all-routes

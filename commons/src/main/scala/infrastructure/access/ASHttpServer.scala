@@ -30,11 +30,11 @@ object ASHttpServer {
   }
   //#start-http-server
   def create(context: ActorContext[IMessage]): Unit = {
-      val agentRegistryActor = context.spawn(AgentRegistry(context), "AgentRegistryActor")
-      context.watch(agentRegistryActor)
+    val agentRegistryActor = context.spawn(AgentRegistry(context), "AgentRegistryActor")
+    context.watch(agentRegistryActor)
 
-      val routes = new AgentRoutes(agentRegistryActor)(context.system)
-      startHttpServer(routes.routes, context.system)
+    val routes = new AgentRoutes(agentRegistryActor)(context.system)
+    startHttpServer(routes.routes, context.system)
   }
 }
 //#main-class

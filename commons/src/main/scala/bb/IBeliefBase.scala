@@ -1,6 +1,5 @@
 package bb
 
-
 import bb.expstyla.exp.StructTerm
 import infrastructure.QueryResponse
 

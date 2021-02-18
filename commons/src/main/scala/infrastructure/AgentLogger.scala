@@ -2,10 +2,10 @@ package infrastructure
 
 case class AgentLogger() {
 
-  var startTime : Long = 0;
+  var startTime: Long = 0;
 
-  def start() : Unit = {startTime = System.nanoTime()}
+  def start(): Unit = { startTime = System.nanoTime() }
 
-  def timeTaken () = (System.nanoTime() - startTime) / 1e9
+  def timeTaken() = (System.nanoTime() - startTime) / 1e9
 
 }

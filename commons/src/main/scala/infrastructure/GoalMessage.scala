@@ -2,9 +2,8 @@ package infrastructure
 
 import akka.actor.typed.ActorRef
 
-case class GoalMessage(p_belief: Any,
-                       p_sender_ref: ActorRef[IMessage] )
-  extends Message(Option(p_sender_ref))
+case class GoalMessage(p_content: Any, src: IMessageSource)
+    extends Message(Option(src))
     with IGoalMessage {
-  override def belief: Any = p_belief
+  override def content: Any = p_content
 }

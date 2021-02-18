@@ -2,7 +2,6 @@ package bb.expstyla.exp
 
 import prolog.terms.{Real, Term, Var}
 
-
 case class DoubleTerm(value: Double) extends GenericTerm {
   override def getIntValue: Int = value.intValue
 

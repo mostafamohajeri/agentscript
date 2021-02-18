@@ -1,6 +1,5 @@
 package scriptcc
 
-
 import HandyTests.MainTest.system
 import agentfactory.FactoryManager
 import akka.actor.typed
@@ -9,13 +8,11 @@ import akka.actor.typed.ActorSystem
 import com.typesafe.config.ConfigFactory
 import infrastructure.{AgentRequest, AgentRequestMessage, IMessage, MAS}
 
-
 import scala.collection.mutable
 import scala.io.Source
 import scala.language.implicitConversions
 
 object Main {
-
 
   def main(args: Array[String]): Unit = {
 
@@ -23,11 +20,11 @@ object Main {
     Usage: as.jar [-verbose v] filename
     """
 
-    if (args.length == 0) {println(usage); return}
+    if (args.length == 0) { println(usage); return }
     val arglist = args.toList
     type OptionMap = Map[Symbol, Any]
 
-    def nextOption(map : OptionMap, list: List[String]) : OptionMap = {
+    def nextOption(map: OptionMap, list: List[String]): OptionMap = {
       def isSwitch(s: String) = (s(0) == '-')
 
       list match {
@@ -36,41 +33,41 @@ object Main {
           nextOption(map ++ Map(Symbol("verbose") -> value.toInt), tail)
         case string :: opt2 :: tail if isSwitch(opt2) =>
           nextOption(map ++ Map(Symbol("infile") -> string), list.tail)
-        case string :: Nil => nextOption(map ++ Map(Symbol("infile") -> string), list.tail)
+        case string :: Nil  => nextOption(map ++ Map(Symbol("infile") -> string), list.tail)
         case option :: tail => println("Unknown option " + option); null
 
       }
     }
 
+    val options = nextOption(Map(), arglist)
 
-
-    val options = nextOption(Map(),arglist)
-
-    if(!options.contains(Symbol("infile"))) {
+    if (!options.contains(Symbol("infile"))) {
       println(usage)
       return
     }
 
-
-    if(options.contains(Symbol("verbose")) && options(Symbol("verbose")).equals(1)) {
+    if (options.contains(Symbol("verbose")) && options(Symbol("verbose")).equals(1)) {
       import org.apache.log4j.BasicConfigurator
       BasicConfigurator.configure()
     }
 
-    val file = options(Symbol("infile")).toString
+    val file   = options(Symbol("infile")).toString
     val source = Source.fromFile(file)
 
-    val loc = file.replaceAll(file.split("/").last,"")
-
+    val loc = file.replaceAll(file.split("/").last, "")
 
     val input = source.getLines().mkString
 
     val data = ujson.read(input)
-    val requests : Seq[AgentRequest] = data("agents").arr.map(
-      o =>
-        AgentRequest(FactoryManager.create(loc+o("script_file").str,o("name").str), o("name").str, o("number").num.toInt)
-    ).toSeq
-
+    val requests: Seq[AgentRequest] = data("agents").arr
+      .map(o =>
+        AgentRequest(
+          FactoryManager.create(loc + o("script_file").str, o("name").str),
+          o("name").str,
+          o("number").num.toInt
+        )
+      )
+      .toSeq
 
     println(requests)
 
@@ -98,11 +95,6 @@ object Main {
 //      }
 //    )
 
-
-
-
-
-
 //    println(StructTerm("a",Seq(IntTerm(2))) == StructTerm("a",Seq(IntTerm(1))))
 
 //    vars += ("M" -> StructTerm("a",Seq(IntTerm(1))))
@@ -116,7 +108,6 @@ object Main {
 //    println( (vars+=+ ("M" -> IntTerm(2))).getClass )
 //    println( vars+=+ ("M" -> IntTerm(2)) )
 //    println(  (vars -=- IntTerm(100))  && StructTerm("neighbor",Seq[GenericTerm](vars("N"))) )
-
 
     val conf1 = ConfigFactory.load(ConfigFactory.parseString("""
  akka {
@@ -143,8 +134,7 @@ object Main {
 
  """))
 
-    val system: ActorSystem[IMessage] = typed.ActorSystem(MAS(), "MAS",conf1)
-
+    val system: ActorSystem[IMessage] = typed.ActorSystem(MAS(), "MAS", conf1)
 
 //    system ! AgentRequestMessage(
 //      Seq(
@@ -155,9 +145,8 @@ object Main {
 //    )
 //
     system ! AgentRequestMessage(
-      requests
+      requests, null
     )
-
 
   }
 

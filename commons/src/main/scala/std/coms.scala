@@ -8,7 +8,7 @@ import scala.collection.parallel.CollectionConverters._
 object coms {
 
   var total_send_time = 0
-  var total = 0;
+  var total           = 0;
 
   def inform(destName: Any, message: Any)(implicit executionContext: ExecutionContext): Any = {
     executionContext.yellowPages !
@@ -22,21 +22,20 @@ object coms {
       )
   }
 
-  def achieve(ref: ActorRef[IMessage], message: Any)(implicit executionContext: ExecutionContext): Any = {
+  def achieve(ref: IMessageSource, message: Any)(implicit
+      executionContext: ExecutionContext
+  ): Any = {
 
-    ref !
+    ref.asInstanceOf[AkkaMessageSource].src !
       GoalMessage(
         message,
-        executionContext.agent.self
+        AkkaMessageSource(executionContext.agent.self)
       )
   }
 
+  def achieve(destName: String, message: Any)(implicit executionContext: ExecutionContext): Any = {
 
-  def achieve(destName: Any, message: Any)(implicit executionContext: ExecutionContext): Any = {
-
-
-    val destination = YellowPages.agentsPersistentCentral.get(destName.toString)
-
+    val destination = YellowPages.agents.get(destName.toString)
 
     if (destination.isEmpty)
       println(f"agent $destName does not exist")
@@ -45,31 +44,35 @@ object coms {
       destination.get !
         GoalMessage(
           message,
-          executionContext.agent.self
+          AkkaMessageSource(executionContext.agent.self)
         )
     }
   }
 
-
   def broadcast_achieve(message: Any)(implicit executionContext: ExecutionContext): Any =
-    YellowPages.agentsPersistentCentral.par.filter(a => executionContext.name != a._1 && !a._1.equals("__MAS")).foreach(
-      a => a._2 ! GoalMessage(
-        message,
-        executionContext.agent.self
+    YellowPages.agents.par
+      .filter(a => executionContext.name != a._1 && !a._1.equals("__MAS"))
+      .foreach(a =>
+        a._2 ! GoalMessage(
+          message,
+          AkkaMessageSource(executionContext.agent.self)
+        )
       )
-    )
 
-  def broadcast_achieve(reg: String, message: Any)(implicit executionContext: ExecutionContext): Any =
-    YellowPages.agentsPersistentCentral.par.filter(a => executionContext.name != a._1 && a._1.matches(reg) && !a._1.equals("__MAS")).foreach(
-      a => a._2 ! GoalMessage(
-        message,
-        executionContext.agent.self
+  def broadcast_achieve(reg: String, message: Any)(implicit
+      executionContext: ExecutionContext
+  ): Any =
+    YellowPages.agents.par
+      .filter(a => executionContext.name != a._1 && a._1.matches(reg) && !a._1.equals("__MAS"))
+      .foreach(a =>
+        a._2 ! GoalMessage(
+          message,
+          AkkaMessageSource(executionContext.agent.self)
+        )
       )
-    )
 
   def exit()(implicit executionContext: ExecutionContext): Unit = {
     executionContext.agent.system.terminate()
   }
-
 
 }

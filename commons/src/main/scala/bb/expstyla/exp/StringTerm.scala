@@ -13,7 +13,7 @@ case class StringTerm(value: String) extends GenericTerm {
 
   override def getTermValue: Term = new Const(value)
 
-  override def getVarValue: Var = throw new TypeException()
+  override def getVarValue: Var = throw TypeException()
 
   override def getObjectValue: Object = value
 

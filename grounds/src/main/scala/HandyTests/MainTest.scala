@@ -13,8 +13,6 @@ import scala.language.implicitConversions
 
 object MainTest {
 
-
-
 //  val f = "/home/msotafa/IdeaProjects/actor-playgrounds/grounds/src/main/asl/agere2020/benchmark3/talker.asl"
 //
 //
@@ -25,22 +23,16 @@ object MainTest {
 //  val code = translator.translate(f,"agent")
 //  println(code)
 
-
-
   val system: ActorSystem[IMessage] = typed.ActorSystem(MAS(), "MAS")
-  val resolver : ActorRefResolver = ActorRefResolver(system)
+  val resolver: ActorRefResolver    = ActorRefResolver(system)
 
   def main(args: Array[String]): Unit = {
 
 //    import org.apache.log4j.BasicConfigurator
 //    BasicConfigurator.configure()
 
-
-
-
 //    val system: ActorSystem[IMessage] =
 //      typed.ActorSystem(MAS(), "MAS")
-
 
 //    system ! AgentRequestMessage(
 //      Seq(
@@ -62,8 +54,6 @@ object MainTest {
 //        AgentRequest(benchmark3.talker.Agent, "talker", 10),
 //      ))
 
-
   }
-
 
 }

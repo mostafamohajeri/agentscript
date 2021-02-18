@@ -1,7 +1,3 @@
 package bb
 
-abstract class IGenericTerm {
-
-
-
-}
+abstract class IGenericTerm {}

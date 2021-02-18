@@ -4,10 +4,9 @@ import scala.tools.reflect.ToolBox
 
 object FactoryCompiler {
 
-  def createFactory(code: String,name:String): IFactory = {
-    val tb = universe.runtimeMirror(this.getClass.getClassLoader).mkToolBox()
-    val tree = tb.parse(
-      f"""
+  def createFactory(code: String, name: String): IFactory = {
+    val tb   = universe.runtimeMirror(this.getClass.getClassLoader).mkToolBox()
+    val tree = tb.parse(f"""
          | import agentfactory.IFactory
          | import infrastructure.IAgent
          |
