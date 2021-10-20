@@ -1,16 +1,20 @@
 package infrastructure
 
+
+
 import akka.actor.typed.{ActorRef, ActorRefResolver}
 import akka.actor.typed.scaladsl.ActorContext
+import bb.expstyla.exp.GenericTerm
 import bb.{BeliefBaseStyla, IBeliefBase, IGenericTerm}
+import org.slf4j.Logger
 
-case class ExecutionContext(
+case class  ExecutionContext(
     name: String,
     agentType: String,
     agent: ActorContext[IMessage],
-    yellowPages: ActorRef[IMessage],
-    beliefBase: BeliefBaseStyla,
-    agentLogger: AgentLogger,
+    yellowPages: IYellowPages,
+    beliefBase: IBeliefBase[GenericTerm],
+    logger: Logger,
     intention: ActorContext[ISubGoalMessage],
     src: IMessageSource
 )
@@ -20,9 +24,9 @@ object ExecutionContext {
       name: String,
       agentType: String,
       agent: ActorContext[IMessage],
-      yellowPages: ActorRef[IMessage],
-      beliefBase: BeliefBaseStyla,
-      agentLogger: AgentLogger
+      yellowPages: IYellowPages,
+      beliefBase: IBeliefBase[GenericTerm],
+      logger: Logger,
   ): ExecutionContext = {
     ExecutionContext(
       name,
@@ -30,7 +34,7 @@ object ExecutionContext {
       agent,
       yellowPages,
       beliefBase,
-      agentLogger,
+      logger,
       null,
       null
     )

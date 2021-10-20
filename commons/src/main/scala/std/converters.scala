@@ -33,16 +33,28 @@ object converters {
   implicit def Native2Term(x: Boolean): BooleanTerm =
     BooleanTerm(x)
 
+  implicit def Native2Term(x: java.lang.Boolean): BooleanTerm =
+    BooleanTerm(x)
+
   implicit def Native2Term(x: Int): IntTerm =
+    IntTerm(x)
+
+  implicit def Native2Term(x: Integer): IntTerm =
     IntTerm(x)
 
   implicit def Native2Term(x: Long): IntTerm =
     IntTerm(x.toInt)
 
+  implicit def Native2Term(x: java.lang.Long): IntTerm =
+    IntTerm(x.toInt)
+
   implicit def Native2Term(x: Double): DoubleTerm =
     DoubleTerm(x)
 
-  implicit def Term2String(x: StringTerm): String =
+  implicit def Native2Term(x: java.lang.Double): DoubleTerm =
+    DoubleTerm(x)
+
+  implicit def Term2String(x: GenericTerm): String =
     x.getStringValue
 
   implicit def Term2Boolean(x: BooleanTerm): Boolean =

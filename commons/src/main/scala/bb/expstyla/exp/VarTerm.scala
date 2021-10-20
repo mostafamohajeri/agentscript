@@ -2,23 +2,29 @@ package bb.expstyla.exp
 
 import prolog.terms.{Term, Var}
 
-case class VarTerm(value: String) extends GenericTerm {
+case class VarTerm(name: String) extends GenericTerm {
 
-  override def getIntValue: Int = throw new TypeException()
+  private var value : GenericTerm = this
+  private var bound = false
+  override def bind_to(genericTerm: GenericTerm) = {this.value = genericTerm ; this.bound = true; true}
 
-  override def getDoubleValue: Double = throw new TypeException()
+//  override var ref: GenericTerm = if(!bound) value else this
 
-  override def getStringValue: String = "Var:" + value
+  override def getIntValue: Int = if(!this.value.eq(this)) this.value.getIntValue else throw new TypeException()
 
-  override def getBooleanValue: Boolean = throw new TypeException()
+  override def getDoubleValue: Double = if(!this.value.eq(this)) this.value.getDoubleValue else throw new TypeException()
 
-  override def getTermValue: Term = variable
+  override def getStringValue: String = if(!this.value.eq(this)) this.value.getStringValue else "var:"+name
+
+  override def getBooleanValue: Boolean = if(!this.value.eq(this)) this.value.getBooleanValue else throw new TypeException()
+
+  override def getTermValue: Term = if(!this.value.eq(this)) this.value.getTermValue else variable
 
   override def getVarValue: Var = variable
 
-  override def getObjectValue: Object = value
+  override def getObjectValue: Object = if(!this.value.eq(this)) this.value.getObjectValue else name
 
-  override def toString: String = value.toString
+  override def toString: String = if(!this.value.eq(this)) this.value.getStringValue else "var:"+name
 
-  lazy val variable = new Var(value)
+  lazy val variable = new Var(name)
 }

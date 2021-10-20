@@ -134,7 +134,8 @@ object Main {
 
  """))
 
-    val system: ActorSystem[IMessage] = typed.ActorSystem(MAS(), "MAS", conf1)
+    val mas : MAS = MAS()
+    val system: ActorSystem[IMessage] = typed.ActorSystem(mas(), "MAS", conf1)
 
 //    system ! AgentRequestMessage(
 //      Seq(

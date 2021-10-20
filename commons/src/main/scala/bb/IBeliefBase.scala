@@ -1,13 +1,11 @@
 package bb
 
-import bb.expstyla.exp.StructTerm
-import infrastructure.QueryResponse
+import bb.expstyla.exp.{GenericTerm, StructTerm}
+import infrastructure.{IAgent, QueryResponse}
 
-abstract class IBeliefBase[T <: IGenericTerm] {
+abstract class IBeliefBase[T <: GenericTerm] {
 
-  def assert(term: T): Boolean
-
-  def assert(terms: List[T]): Unit
+  def assertOne(term: T): Boolean
 
   def query(term: T): QueryResponse
 
@@ -19,5 +17,7 @@ abstract class IBeliefBase[T <: IGenericTerm] {
 
   def matchTerms(): QueryResponse
 
-  def retract(term: T): Boolean
+  def retractOne(term: T): Boolean
+
+  def assert(terms: List[T]): Unit
 }

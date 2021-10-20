@@ -1,18 +1,30 @@
 import akka.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
-import bb.expstyla.exp.StructTerm
+import bb.expstyla.exp.{StringTerm, StructTerm}
 import infrastructure._
 import org.scalatest.wordspec.AnyWordSpecLike
+import std.{AgentCommunicationLayer, DefaultCommunications}
 
-class AgentSpec extends ScalaTestWithActorTestKit with AnyWordSpecLike {
+class AgentSpec11 extends ScalaTestWithActorTestKit with AnyWordSpecLike {
 
   val mas = MAS()
+
+  import org.apache.log4j.BasicConfigurator
+
+  BasicConfigurator.configure()
+
+  object MockedComsLayer extends DefaultCommunications {
+    override def achieve(destName: String, message: Any)(implicit executionContext: ExecutionContext): Any = {
+      print("a message was sent")
+      super.achieve(destName, message)
+    }
+  }
 
   override def beforeAll(): Unit = {
     val m = testKit.spawn(mas(), "MAS")
     m ! AgentRequestMessage(
       Seq(
 //        AgentRequest(asl.talker.Agent, "talker", 1),
-        AgentRequest(new asl.greeter().agentBuilder, "greeter", 1),
+        AgentRequest(new asl.greeter11(coms = MockedComsLayer).agentBuilder, "greeter", 1),
       ),null)
     Thread.sleep(3000)
   }
@@ -68,8 +80,8 @@ class AgentSpec extends ScalaTestWithActorTestKit with AnyWordSpecLike {
   "A greeter agent" should {
     "say greetings in response to a hello" in {
       val prob = testKit.createTestProbe[IMessage]()
-      mas.yellowPages.getAgent("greeter").get.asInstanceOf[AkkaMessageSource].address()  ! GoalMessage(StructTerm("hello"),AkkaMessageSource(prob.ref))
-      assert(prob.receiveMessage().asInstanceOf[GoalMessage].content.toString  equals  "greetings")
+      mas.yellowPages.getAgent("greeter").get.asInstanceOf[AkkaMessageSource].address()  ! GoalMessage(StructTerm("hello",Seq(StringTerm("John"))),AkkaMessageSource(prob.ref))
+      assert(prob.receiveMessage().asInstanceOf[GoalMessage].content.toString  contains  "greetings")
     }
   }
 

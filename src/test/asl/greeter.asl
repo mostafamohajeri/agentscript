@@ -1,7 +1,7 @@
 +!hello =>
-    #achieve(#executionContext.src,greetings)
+    #coms.achieve(#executionContext.src,greetings)
 .
 
 +!hello =>
-    #achieve(#executionContext.src,ssssss)
+    #coms.achieve(#executionContext.src,ssssss)
 .

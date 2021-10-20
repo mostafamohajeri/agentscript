@@ -4,9 +4,9 @@ import prolog.builtins.{fail_, true_}
 import prolog.terms.{Term, Var}
 
 case class BooleanTerm(value: Boolean) extends GenericTerm {
-  override def getIntValue: Int = throw new TypeException()
+  override def getIntValue: Int = if (value) 1 else 0
 
-  override def getDoubleValue: Double = throw new TypeException()
+  override def getDoubleValue: Double = if (value) 1 else 0
 
   override def getStringValue: String = if (value) "true" else "false"
 

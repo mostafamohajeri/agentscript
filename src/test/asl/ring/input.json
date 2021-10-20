@@ -1,0 +1,14 @@
+{
+  "agents": [
+    {
+      "name" : "thread",
+      "script_file" : "thread.asl",
+      "number": 10
+    } ,
+    {
+      "name" : "master",
+      "script_file" : "master.asl",
+      "number": 1
+    }
+  ]
+}

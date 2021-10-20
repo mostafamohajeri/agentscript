@@ -1,10 +1,13 @@
 package bb.expstyla.exp
 
 import bb.IGenericTerm
+import infrastructure.QueryResponse
 import prolog.builtins.{fail_, true_}
-import prolog.terms.{Const, Fun, Real, SmallInt, Term, Truth, Var}
+import prolog.terms.{Const, Fun, Real, SmallInt, Term, Trail, Truth, Var}
 
-abstract class GenericTerm extends IGenericTerm {
+abstract class GenericTerm {
+
+  def bind_to(term: GenericTerm): Boolean = true
 
   def +(other: GenericTerm): GenericTerm = {
     (this, other) match {
@@ -191,6 +194,20 @@ abstract class GenericTerm extends IGenericTerm {
     }
   }
 
+  def unify(other: GenericTerm) : BooleanTerm = {
+    val t1 = this.getTermValue
+    val t2 = other.getTermValue
+
+    val tr = new Trail()
+    if (t1.unify(t2, tr)) {
+      val t1G = GenericTerm.create(t1)
+      if (this.bind_to(t1G))
+        return BooleanTerm(true)
+    }
+    BooleanTerm(false)
+
+  }
+
   def getIntValue: Int
   def getDoubleValue: Double
   def getStringValue: String
@@ -198,6 +215,9 @@ abstract class GenericTerm extends IGenericTerm {
   def getTermValue: Term
   def getVarValue: Var
   def getObjectValue: Object
+
+
+  override def toString: String = this.getStringValue
 
 }
 
@@ -207,13 +227,13 @@ object GenericTerm {
   def create(value: String): GenericTerm  = StringTerm(value)
   def create(value: Boolean): GenericTerm = BooleanTerm(value)
   def create(value: Fun): GenericTerm     = StructTerm(value.sym, value.args.map(a => create(a)))
-  def create(value: Var): GenericTerm     = VarTerm(value.v_name)
+  def create(value: Var): GenericTerm     = if(value.unbound) VarTerm(value.v_name) else create(value.ref)
   def create(value: Term): GenericTerm = {
     value match {
       case true_()     => create(true)
       case fail_()     => create(false)
-      case a: Const    => create(a.sym)
       case a: Fun      => create(a)
+      case a: Const    => create(a.sym)
       case a: SmallInt => create(a.getValue.toInt)
       case a: Real     => create(a.getValue.toDouble)
       case a: Var      => create(a)

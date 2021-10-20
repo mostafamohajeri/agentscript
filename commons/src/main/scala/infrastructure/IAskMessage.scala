@@ -1,5 +1,5 @@
 package infrastructure
 
-trait IBeliefMessage extends IMessage {
+trait IAskMessage extends IMessage {
   def content: Any
 }

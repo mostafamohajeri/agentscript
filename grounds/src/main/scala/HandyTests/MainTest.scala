@@ -23,7 +23,7 @@ object MainTest {
 //  val code = translator.translate(f,"agent")
 //  println(code)
 
-  val system: ActorSystem[IMessage] = typed.ActorSystem(MAS(), "MAS")
+  val system: ActorSystem[IMessage] = typed.ActorSystem(MAS()(), "MAS")
   val resolver: ActorRefResolver    = ActorRefResolver(system)
 
   def main(args: Array[String]): Unit = {

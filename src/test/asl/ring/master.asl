@@ -1,8 +1,8 @@
-agents(16).
-tokens(16).
-token_value(128).
+agents(10).
+tokens(250).
+token_value(10).
 
-
+!init.
 
 +!init : agents(W) && tokens(T) && token_value(V) =>
     #println("start at:");
@@ -10,14 +10,9 @@ token_value(128).
     +not_done(T);
     for(I in between(1,T,I)) {
           J = #std.math.ceil(I * ( W / T ));
-          //#println(J);
           #coms.achieve("thread"+J,token(V));
-          #coms.inform("thread"+J,name("thread"+J));
         }
    .
-
-
-
 
 @atomic
 +!done : not_done(T) =>

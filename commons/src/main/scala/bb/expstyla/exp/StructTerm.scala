@@ -1,11 +1,28 @@
 package bb.expstyla.exp
 
 import prolog.builtins.is
-import prolog.terms.{Conj, Fun, Real, Term, Var, Const,Disj}
+import prolog.io.TermParser
+import prolog.terms.{Clause, Conj, Const, Disj, Fun, Real, Term, Var}
 
 import scala.jdk.CollectionConverters._
 
 case class StructTerm(functor: String, terms: Seq[GenericTerm] = Seq()) extends GenericTerm {
+
+  override def bind_to(term: GenericTerm): Boolean = {
+    term match {
+      case StructTerm(f,params) =>
+        if(f==functor && params.length == terms.length) {
+          for (i <- params.indices) {
+            if (!terms(i).bind_to(params(i)))
+              false
+          }
+          return true
+        }
+        false
+      case _ => false
+    }
+
+  }
 
   override def getIntValue: Int = throw new TypeException()
 
@@ -25,18 +42,28 @@ case class StructTerm(functor: String, terms: Seq[GenericTerm] = Seq()) extends 
 
   override def toString: String = getStringValue
 
+
   def struct: Term = {
     if (terms.size == 0)
       new Const(functor)
     else {
       functor match {
+        case ":-"   => Clause.build(terms(0).getTermValue, terms(1).getTermValue)
         case ","   => Conj.build(terms(0).getTermValue, terms(1).getTermValue)
         case ";"   => Disj.build(terms(0).getTermValue, terms(1).getTermValue)
         case "not" => new Fun("\\+", terms.map(t => t.getTermValue).toArray)
         case "\\=" => new Fun("=\\=", terms.map(t => t.getTermValue).toArray)
-        case _     => new Fun(functor, terms.map(t => t.getTermValue).toArray)
+        case _     => TermParser.toFunBuiltin(new Fun(functor, terms.map(t => t.getTermValue).toArray))
       }
     }
   }
+
+  def matchOnlyFunctorAndArity(functor:String,arity:Int) : Boolean = {
+    (this.functor == functor && this.terms.size == arity)
+  }
+
+}
+
+object StructTerm {
 
 }

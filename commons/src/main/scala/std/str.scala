@@ -1,5 +1,9 @@
 package std
 
+import bb.expstyla.exp.{BooleanTerm, GenericTerm}
+import infrastructure.QueryResponse
+import prolog.terms.Trail
+
 object str {
   def concat(str1: String, str2: String): String =
     str1.concat(str2)

@@ -1,86 +1,69 @@
 package bb
 
-import java.util
+import java.util.concurrent.ArrayBlockingQueue
 
-import bb.expstyla.exp.{GenericTerm, StringTerm, StructTerm}
-import infrastructure.{IAgent, QueryResponse}
+import bb.expstyla.exp.GenericTerm
+import infrastructure.QueryResponse
 import prolog.LogicEngine
-import prolog.builtins.{assert, retractall}
-import prolog.terms.{Fun, SmallInt, Trail}
+import prolog.builtins.{assert, retractall, true_}
+import prolog.fluents.DataBase
+import prolog.terms.{Clause, Conj, Trail}
 
 import scala.collection.mutable.ListBuffer
-import scala.jdk.CollectionConverters._
 import scala.language.postfixOps
 
-class BeliefBaseStyla() extends IBeliefBase[GenericTerm] {
+class BeliefBaseStylaConcurrent() extends IBeliefBase[GenericTerm] {
 
-  val logicEngine = new LogicEngine()
+  val db = new DataBase(null)
 
-  //  val e = new ExecutionContext
+  var a : ArrayBlockingQueue[LogicEngine] = new ArrayBlockingQueue[LogicEngine](6)
 
-  //  solver.loadLibrary(
-  //    Library.aliased(
-  //      new OperatorSet(),
-  //      Theory.empty(),
-  //      Map(
-  //        prolog.fun_creator.replaceAllSignature -> ((fun_creator.replaceAll).asInstanceOf[Function1[_ >: Solve.Request[_ <: ExecutionContext], _ <: Sequence[Solve.Response]]]),
-  //        prolog.fun_creator.concatSignature -> ((fun_creator.concat).asInstanceOf[Function1[_ >: Solve.Request[_ <: ExecutionContext], _ <: Sequence[Solve.Response]]]),
-  //        prolog.fun_creator.num2strSignature -> ((fun_creator.num2str).asInstanceOf[Function1[_ >: Solve.Request[_ <: ExecutionContext], _ <: Sequence[Solve.Response]]]),
-  //        prolog.fun_creator.str2numSignature -> ((fun_creator.str2num).asInstanceOf[Function1[_ >: Solve.Request[_ <: ExecutionContext], _ <: Sequence[Solve.Response]]])
-  //      ).asJava,
-  //      new util.HashMap(),
-  //      "utils"
-  //    )
-  //  )
-
+  for(i <- 1 to 6) {
+    a.put(new LogicEngine(db))
+  }
 
   override def assertOne(term: GenericTerm): Boolean =
-    this.synchronized {
-      val assert = new assert()
-      assert.args = Array(term.getTermValue)
-      logicEngine.setGoal(assert)
-      val answer = logicEngine.askAnswer()
-      true
+    this.synchronized
+    {
+      db.pushIfNotExists(List(term.getTermValue))
     }
 
   override def assert(terms: List[GenericTerm]): Unit =
-    this.synchronized {
+    this.synchronized
+    {
       terms.foreach(t => assertOne(t))
     }
 
   override def retractOne(term: GenericTerm): Boolean =
-    this.synchronized {
-      val retractAll = new retractall()
-      retractAll.args = Array(term.getTermValue)
-      logicEngine.setGoal(retractAll)
-      logicEngine.askAnswer()
-      true
+    this.synchronized
+    {
+      db.delIfExists(term.getTermValue)
     }
 
   override def query(term: GenericTerm): QueryResponse =
-    this.synchronized
+//    this.synchronized
     {
-
-      logicEngine.set_query(List(term.getTermValue))
-
+      val logicEngine = a.take()
+      logicEngine.set_query(List(Conj.build(true_(),term.getTermValue)))
+//      println(logicEngine.query)
       val answer = logicEngine.askAnswer()
-      println(logicEngine.query)
+//      println(f"${logicEngine.query }: subs: ${logicEngine.substitutions()}")
       if (answer == null) {
-
+        a.put(logicEngine)
         QueryResponse(result = false, Map[String, GenericTerm]())
 
       } else {
         val vars =
           logicEngine.substitutions().map(tuple => tuple._1 -> GenericTerm.create(tuple._2.ref))
-
+        a.put(logicEngine)
         QueryResponse(result = true, vars)
       }
     }
 
   override def bufferedQuery(term: GenericTerm): Iterator[QueryResponse] =
-    this.synchronized
+//    this.synchronized
     {
-
+      val logicEngine = a.take()
       val ret = new ListBuffer[QueryResponse]()
 
       logicEngine.setGoal(term.getTermValue)
@@ -97,7 +80,7 @@ class BeliefBaseStyla() extends IBeliefBase[GenericTerm] {
           ret.append(QueryResponse(result = true, vars))
         }
       }
-
+      a.put(logicEngine)
       ret.iterator
     }
 
@@ -117,6 +100,8 @@ class BeliefBaseStyla() extends IBeliefBase[GenericTerm] {
       QueryResponse(result = false, Map[String, GenericTerm]())
     }
   }
+
+
 
   override def matchTerms(): QueryResponse = QueryResponse(result = true, Map[String, GenericTerm]())
 

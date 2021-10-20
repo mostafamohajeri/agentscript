@@ -1,48 +1,58 @@
 
 package asl
+import _root_.scala.collection.mutable.HashMap
 
-import _root_.akka.actor.typed.scaladsl.AskPattern._
-import _root_.akka.actor.typed.scaladsl.{Behaviors, Routers}
 import _root_.akka.actor.typed.{ActorRef, Behavior, SupervisorStrategy}
+import _root_.akka.actor.typed.scaladsl.{ActorContext, Behaviors, Routers}
+import java.util.logging.Logger
+import _root_.scala.util.Failure
+import _root_.scala.util.Success
 import _root_.akka.util.Timeout
-import bb._
-import bb.expstyla.exp._
-import infrastructure._
-import std.coms._
-
 import _root_.scala.concurrent.duration._
-import _root_.scala.concurrent.{Await, Future}
+import _root_.akka.actor.typed.scaladsl.AskPattern._
 import _root_.scala.language.implicitConversions
-import _root_.scala.util.{Failure, Success}
+import _root_.scala.concurrent.{Await, Future}
+import _root_.scala.jdk.CollectionConverters._
+import std.converters._
 
-object greeter {
+import scala.util.Random
+import bb._
+import infrastructure._
+import bb.expstyla.exp._
+import std.{AgentCommunicationLayer, DefaultCommunications}
+
+class greeter11  (coms: AgentCommunicationLayer = new  DefaultCommunications,
+                  beliefBaseFactory: IBeliefBaseFactory = new StylaBeliefBaseFactory)
+  extends IntentionalAgentFactory {
+
 
   object Intention {
 
-def apply(p_executionContext: ExecutionContext): Behavior[ISubGoalMessage] = Behaviors.setup { context =>
+    def apply(p_executionContext: ExecutionContext): Behavior[ISubGoalMessage] = Behaviors.setup { context =>
+
       Behaviors.receive {
         (context, message) =>
 
           implicit val executionContext = p_executionContext.copy(intention = context, src = message.source)
 
           message match {
-            case SubGoalMessage(_, _, r) =>
+            case SubGoalMessage(_,_,r) =>
               message.goal match {
 
-                case greeter.hello =>
-                  greeter.hello.execute(message.params.asInstanceOf[Parameters])
+                case greeter11.this.hello_1 =>
+                  greeter11.this.hello_1.execute(message.params.asInstanceOf[Parameters])
+
 
                 case _ =>
-                  context.log.error("This agent can not handle goal of type {}", message.goal)
+                  context.log.error("This actor can not handle goal of type {}", message.goal)
               }
-
               r match {
-                case a : AkkaMessageSource => 
+                case a : AkkaMessageSource =>
                   a.src ! IntentionDoneMessage(AkkaMessageSource(executionContext.agent.self))
-                case DummyMessageSource(_) => 
+                case DummyMessageSource(_) =>
                   context.log.error("Intention Done!")
               }
-              
+
               Behaviors.same
             case InitEndMessage(r) =>
               Behaviors.stopped
@@ -51,9 +61,10 @@ def apply(p_executionContext: ExecutionContext): Behavior[ISubGoalMessage] = Beh
     }
   }
 
-  object Agent extends IAgent {
+  override def agentBuilder: Agent = new Agent()
+  class Agent extends IAgent {
 
-    override def agent_type: String = "greeter"
+    override def agent_type: String = "greeter11"
 
     var vars = VarMap()
 
@@ -64,20 +75,20 @@ def apply(p_executionContext: ExecutionContext): Behavior[ISubGoalMessage] = Beh
     )
 
     def create_goal_message(t: StructTerm, ref: IMessageSource) (implicit executionContext: ExecutionContext): Option[SubGoalMessage] = {
-      if (t.functor == "hello" && t.terms.size == 0) {
+      if(t.matchOnlyFunctorAndArity("hello",1)) {
+        //          if(t.functor=="hello" && t.terms.size == 1 ) {
         val args: Parameters = Parameters(t.terms.toList)
-        Option(SubGoalMessage(hello, args, ref))
-      } else {
+        Option(SubGoalMessage(hello_1, args, ref))
+      } else  {
         Option.empty[SubGoalMessage]
       }
     }
 
-    def apply(name: String, yellowPages: ActorRef[IMessage], MAS: ActorRef[IMessage]): Behavior[IMessage] = {
+    def apply(name: String, yellowPages: IYellowPages, MAS: ActorRef[IMessage]): Behavior[IMessage] = {
       Behaviors.setup { context =>
-        val yp: ActorRef[IMessage] = yellowPages
-        val bb: BeliefBaseStyla = BeliefBaseFactory()
-        val logger = AgentLogger()
-        implicit val executionContext: ExecutionContext = ExecutionContext(name, agent_type, context, yp, bb, logger)
+        val yp: IYellowPages = yellowPages
+        val bb: IBeliefBase[GenericTerm] = beliefBaseFactory()
+        implicit val executionContext: ExecutionContext = ExecutionContext(name, agent_type, context, yp, bb, context.log)
         bb.assert(initBeliefs)
 
         val initiator = context.spawn(Intention(executionContext), "initiator")
@@ -87,7 +98,6 @@ def apply(p_executionContext: ExecutionContext): Behavior[ISubGoalMessage] = Beh
           (context, message) =>
             message match {
               case StartMessage() =>
-                logger.start()
 
                 implicit val timeout: Timeout = 99999.seconds
                 implicit val ec = context.executionContext
@@ -104,7 +114,7 @@ def apply(p_executionContext: ExecutionContext): Behavior[ISubGoalMessage] = Beh
                       subGoal.get
                     else
                       throw new RuntimeException(s"No plan for initial goal $struct")
-                    }
+                  }
                   )
 
 
@@ -139,7 +149,6 @@ def apply(p_executionContext: ExecutionContext): Behavior[ISubGoalMessage] = Beh
 
         val pool = Routers.pool(poolSize = 8)(
           Behaviors.supervise(Intention(executionContext)).onFailure[Exception](SupervisorStrategy.restart))
-
         val router = context.spawn(pool, "intention-pool")
 
         Behaviors.receive {
@@ -168,48 +177,53 @@ def apply(p_executionContext: ExecutionContext): Behavior[ISubGoalMessage] = Beh
     }
   }
 
-  object hello extends IGoal {
+  object hello_1 extends IGoal {
 
- 
-
-    def execute(params: Parameters)(implicit executionContext: ExecutionContext): Unit = {
+    def execute(params: Parameters) (implicit executionContext: ExecutionContext) : Unit = {
       var vars = VarMap()
       //plan 0 start
 
       vars.clear()
-      val m0 = executionContext.beliefBase.matchTerms(/* StructTerm("hello",Seq[GenericTerm]()) All vars no need to check */);
+      vars +=(   "Name" -> params.l_params(0))
 
-      if (m0.result) {
-        m0.bindings foreach { case (k, v) => vars += (k -> v.asInstanceOf[GenericTerm]) }
+      val r0 = executionContext.beliefBase.query(StructTerm("==",Seq[GenericTerm](asString(vars("Name")).contains(StringTerm("Mr")),BooleanTerm(true))))
 
-        val r0 = executionContext.beliefBase.query()
-
-        if (r0.result) {
-          r0.bindings foreach { case (k, v) => vars += (k -> v.asInstanceOf[GenericTerm]) }
-          plan0(vars)
-          return
-        }
-
+      if (r0.result) {
+        r0.bindings foreach { case (k, v) => vars += (k -> v.asInstanceOf[GenericTerm]) }
+        plan0(vars)
+        return
       }
-      // plan 0
+
+      // plan 0 end
       //plan 1 start
 
       vars.clear()
-      val m1 = executionContext.beliefBase.matchTerms(/* StructTerm("hello",Seq[GenericTerm]()) All vars no need to check */);
+      vars +=(   "Name" -> params.l_params(0))
 
-      if (m1.result) {
-        m1.bindings foreach { case (k, v) => vars += (k -> v.asInstanceOf[GenericTerm]) }
+      val r1 = executionContext.beliefBase.query(StructTerm(";",Seq[GenericTerm](StructTerm("==",Seq[GenericTerm](asString(vars("Name")).contains(StringTerm("Ms")),BooleanTerm(true))),asString(vars("Name")).contains(StringTerm("Mrs")))))
 
-        val r1 = executionContext.beliefBase.query()
-
-        if (r1.result) {
-          r1.bindings foreach { case (k, v) => vars += (k -> v.asInstanceOf[GenericTerm]) }
-          plan1(vars)
-          return
-        }
-
+      if (r1.result) {
+        r1.bindings foreach { case (k, v) => vars += (k -> v.asInstanceOf[GenericTerm]) }
+        plan1(vars)
+        return
       }
-      // plan 1
+
+      // plan 1 end
+      //plan 2 start
+
+      vars.clear()
+      vars +=( "0" -> params.l_params(0))
+
+      val m2 = executionContext.beliefBase.matchTerms(StructTerm("hello",Seq[GenericTerm](StringTerm("John"))),StructTerm("hello",params.l_params));
+      if(m2.result)
+      {
+        m2.bindings foreach { case (k, v) => vars += (k -> v.asInstanceOf[GenericTerm]) }
+
+        plan2(vars)
+        return
+      }
+      // plan 2 end
+
 
       executionContext.src.asInstanceOf[AkkaMessageSource].address() ! IntentionErrorMessage(NoApplicablePlanMessage(),AkkaMessageSource(executionContext.agent.self))
 
@@ -217,12 +231,20 @@ def apply(p_executionContext: ExecutionContext): Behavior[ISubGoalMessage] = Beh
 
 
     def plan0(vars: VarMap)(implicit executionContext: ExecutionContext): Unit = {
-      PrimitiveAction.execute(PrimitiveAction.Parameters(() => achieve(executionContext.src, StructTerm("greetings", Seq[GenericTerm]()))))
-    }
 
+      PrimitiveAction.execute(PrimitiveAction.Parameters(() => coms.achieve(executionContext.src,StructTerm("greetings",Seq[GenericTerm](StringTerm("Sir"))))))
+
+
+    }
     def plan1(vars: VarMap)(implicit executionContext: ExecutionContext): Unit = {
 
-      PrimitiveAction.execute(PrimitiveAction.Parameters(() => achieve(executionContext.src, StructTerm("ssssss", Seq[GenericTerm]()))))
+      PrimitiveAction.execute(PrimitiveAction.Parameters(() => coms.achieve(executionContext.src,StructTerm("greetings",Seq[GenericTerm](StringTerm("Madam"))))))
+
+
+    }
+    def plan2(vars: VarMap)(implicit executionContext: ExecutionContext): Unit = {
+
+      PrimitiveAction.execute(PrimitiveAction.Parameters(() => coms.achieve(executionContext.src,StructTerm("greetings",Seq[GenericTerm](StringTerm("John"))))))
 
 
     }
@@ -231,6 +253,7 @@ def apply(p_executionContext: ExecutionContext): Behavior[ISubGoalMessage] = Beh
   }
 
 
-  def myName()(implicit executionContext: ExecutionContext): String = executionContext.name
+
+
 
 }

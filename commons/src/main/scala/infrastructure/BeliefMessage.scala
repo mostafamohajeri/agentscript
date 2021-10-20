@@ -2,8 +2,8 @@ package infrastructure
 
 import akka.actor.typed.ActorRef
 
-case class BeliefMessage(p_belief: Any, p_sender_ref: ActorRef[IMessage])
-    extends Message(Option(AkkaMessageSource(p_sender_ref)))
+case class BeliefMessage(p_content: Any, src: IMessageSource)
+  extends Message(Option(src))
     with IBeliefMessage {
-  override def belief: Any = p_belief
+  override def content: Any = p_content
 }

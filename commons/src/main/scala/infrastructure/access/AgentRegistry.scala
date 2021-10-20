@@ -37,7 +37,8 @@ object AgentRegistry {
                 replyTo ! ActionPerformed(
                   s"Command ${command.toString} created. and it was like ${t}"
                 )
-                std.coms.achieve(command.agent, t)
+//                coms.achieve(command.agent, t)
+                // TODO: this was removed temporarily, needs DI
               } catch {
                 case t: Throwable => replyTo ! ActionPerformed(s"${t.getLocalizedMessage}")
               }

@@ -1,0 +1,14 @@
+{
+  "agents": [
+    {
+      "name" : "cham",
+      "script_file" : "cham.asl",
+      "number": 500
+    } ,
+    {
+      "name" : "broker",
+      "script_file" : "broker.asl",
+      "number": 1
+    }
+  ]
+}

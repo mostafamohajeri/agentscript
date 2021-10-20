@@ -4,6 +4,6 @@
 .
 
 +!hi =>
-    #achieve(#executionContext.src,hello)
+    #coms.achieve(#executionContext.src,hello)
 .
 
