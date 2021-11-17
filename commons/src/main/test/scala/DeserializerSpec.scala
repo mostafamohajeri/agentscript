@@ -3,8 +3,8 @@ import com.google.gson.{Gson, JsonObject}
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.matchers.should.Matchers._
 import org.scalatest.wordspec.AnyWordSpec
-import serialize.DeserializeException
-import serialize.terms.{JsonTermDeserializer, JsonTermSerializer}
+import bb.serialize.DeserializeException
+import bb.serialize.terms.{JsonTermDeserializer, JsonTermSerializer}
 
 class DeserializerSpec extends AnyWordSpec with BeforeAndAfterAll {
 
@@ -14,7 +14,7 @@ class DeserializerSpec extends AnyWordSpec with BeforeAndAfterAll {
 
   "A Deserializer" when {
     "sent a malformed object" should {
-      "throw a serialize.DeserializeException exception" in {
+      "throw a bb.serialize.DeserializeException exception" in {
         assertThrows[DeserializeException] {
           deserializer.deserialize(new JsonObject())
         }
@@ -52,6 +52,14 @@ class DeserializerSpec extends AnyWordSpec with BeforeAndAfterAll {
     "deserialized" should {
       "become the same" in {
         assert(deserializer.deserialize(serializer.serialize(IntTerm(999))) equals IntTerm(999))
+      }
+    }
+  }
+
+  "A Serialized Object" when {
+    "deserialized" should {
+      "become the same" in {
+        assert(deserializer.deserialize("func(1)") equals StructTerm("func", Seq(IntTerm(1))))
       }
     }
   }

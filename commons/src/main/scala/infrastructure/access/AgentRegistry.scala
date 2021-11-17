@@ -6,38 +6,46 @@ import java.util
 import akka.actor.typed.ActorRef
 import akka.actor.typed.Behavior
 import akka.actor.typed.scaladsl.{ActorContext, Behaviors}
-import infrastructure.{ExecutionContext, IMessage, YellowPages}
+import bb.expstyla.exp.StructTerm
+import bb.serialize.terms.JsonTermDeserializer
+import com.google.gson.Gson
+import infrastructure.{AkkaMessageSource, ExecutionContext, GoalMessage, IMessage, YellowPages}
 
 import scala.collection.immutable
 import org.antlr.v4.runtime.{BufferedTokenStream, CharStreams, IntStream, Token, TokenStream}
 //#user-case-classes
-final case class PerformCommand(agent: String, command: String)
+final case class PerformCommand(agent: String, command: spray.json.JsObject,src:String)
+
 //#user-case-classes
 
 object AgentRegistry {
   // actor protocol
+
   sealed trait Command
   final case class Achieve(command: PerformCommand, replyTo: ActorRef[ActionPerformed])
       extends Command
 
   final case class ActionPerformed(description: String)
 
-  def apply(parent: ActorContext[IMessage]): Behavior[Command] =
-    registry(parent: ActorContext[IMessage])
+  val deserializer = JsonTermDeserializer(new Gson())
 
-  private def registry(parent: ActorContext[IMessage]): Behavior[Command] =
+  def apply(parent: ActorContext[IMessage], yellowPages: YellowPages): Behavior[Command] =
+    registry(parent: ActorContext[IMessage],yellowPages)
+
+  private def registry(parent: ActorContext[IMessage], yellowPages: YellowPages): Behavior[Command] =
     Behaviors.setup { context =>
       {
-        implicit val executionContext: ExecutionContext = ExecutionContext("god", "god", parent)
+//        implicit val executionContext: ExecutionContext = ExecutionContext("god", "god", parent)
         Behaviors.receive { (context, message) =>
           message match {
             case Achieve(command, replyTo) =>
               try {
-                val t = null
+                val t = deserializer.deserialize(command.command.toString()).asInstanceOf[StructTerm]
+                println(yellowPages.getAgent(command.src).get.asInstanceOf[AkkaMessageSource])
                 replyTo ! ActionPerformed(
                   s"Command ${command.toString} created. and it was like ${t}"
                 )
-//                coms.achieve(command.agent, t)
+                yellowPages.getAgent(command.agent).get.asInstanceOf[AkkaMessageSource].address() ! GoalMessage(t.asInstanceOf[StructTerm],yellowPages.getAgent(command.src).get.asInstanceOf[AkkaMessageSource])
                 // TODO: this was removed temporarily, needs DI
               } catch {
                 case t: Throwable => replyTo ! ActionPerformed(s"${t.getLocalizedMessage}")

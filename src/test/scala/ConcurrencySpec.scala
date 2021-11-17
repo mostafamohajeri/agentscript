@@ -22,6 +22,7 @@ class ConcurrencySpec extends ScalaTestWithActorTestKit with AnyWordSpecLike {
         AgentRequest(new asl.responder().agentBuilder, "responder", 1),
       ),null)
     Thread.sleep(3000)
+//    while(!mas.allReady) Thread.sleep(1000)
   }
 //
 //  "An agent" should {

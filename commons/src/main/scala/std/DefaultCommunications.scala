@@ -3,7 +3,7 @@ package std
 import _root_.akka.actor.typed.scaladsl.AskPattern._
 import _root_.akka.util.Timeout
 import akka.actor.typed.Scheduler
-import bb.expstyla.exp.{BooleanTerm, GenericTerm, StructTerm}
+import bb.expstyla.exp.{BooleanTerm, GenericTerm, IntTerm, StructTerm}
 import com.typesafe.config.ConfigException.Generic
 import infrastructure._
 
@@ -13,7 +13,7 @@ import _root_.scala.language.implicitConversions
 import _root_.scala.util.{Failure, Success}
 import scala.collection.parallel.CollectionConverters._
 
-class DefaultCommunications extends AgentCommunicationLayer {
+class DefaultCommunications(logger: CommunicationLogger = SinkComminicationLogger()) extends AgentCommunicationLayer {
 
 
   def sendGoal(dest: IMessageSource, message: Any, src: IMessageSource): Any = {
@@ -21,6 +21,7 @@ class DefaultCommunications extends AgentCommunicationLayer {
       message,
       src
     )
+    logger.logAchieveMessage(src.name(),message.toString,dest.name())
     true
   }
 
@@ -29,14 +30,25 @@ class DefaultCommunications extends AgentCommunicationLayer {
       message,
       src
     )
+    logger.logBeliefMessage(src.name(),message.toString,dest.name())
     true
   }
 
-  def sendAsk(dest: IMessageSource, message: Any, src: IMessageSource)(implicit executionContext: ExecutionContext): GenericTerm = {
+  def sendResponse(dest: IMessageSource, message: Any, src: IMessageSource): Any = {
+    dest.asInstanceOf[AkkaMessageSource].address() ! BeliefMessage(
+      message,
+      src
+    )
+    true
+  }
 
-    implicit val timeout: Timeout = 3.seconds
+  def sendAsk(dest: IMessageSource, message: Any, src: IMessageSource,t: IntTerm)(implicit executionContext: ExecutionContext): GenericTerm = {
+
+    implicit val timeout: Timeout = t.getIntValue.milliseconds
     implicit val ec: ExecutionContextExecutor = executionContext.intention.executionContext
     implicit val scheduler: Scheduler = executionContext.intention.system.scheduler
+
+
 
     val result: Future[IMessage] = dest.asInstanceOf[AkkaMessageSource].address().ask[IMessage]( ref => {
       AskMessage(
@@ -46,6 +58,8 @@ class DefaultCommunications extends AgentCommunicationLayer {
     }
     )
 
+    logger.logAskMessage(src.name(),message.toString,dest.name())
+
 
     //    result.onComplete {
     //      case Success(BeliefMessage(c,s)) => c.asInstanceOf[GenericTerm]
@@ -53,10 +67,13 @@ class DefaultCommunications extends AgentCommunicationLayer {
     //    }
 
     try {
-      return Await.result(result, timeout.duration).asInstanceOf[BeliefMessage].content.asInstanceOf[StructTerm]
+      val response = Await.result(result, timeout.duration).asInstanceOf[BeliefMessage].content.asInstanceOf[GenericTerm]
+      logger.logRespondMessage(dest.name(),response.toString,src.name())
+      return response
     }
     catch {
-      case _ => return BooleanTerm(false)
+      case _ =>
+        return BooleanTerm(false)
     }
 
   }
@@ -172,7 +189,7 @@ class DefaultCommunications extends AgentCommunicationLayer {
         }
       )
 
-  override def ask(destName: String, message: Any)(implicit executionContext: ExecutionContext): GenericTerm = {
+  override def ask(destName: String, message: Any, timeout: IntTerm)(implicit executionContext: ExecutionContext): GenericTerm = {
     val destination = executionContext.yellowPages.getAgent(destName.toString)
     if (destination.isEmpty) {
       println(f"$destName Not Found")
@@ -183,43 +200,55 @@ class DefaultCommunications extends AgentCommunicationLayer {
         case dest: AkkaMessageSource =>
           sendAsk(dest,
             message,
-            AkkaMessageSource(executionContext.agent.self)
+            AkkaMessageSource(executionContext.agent.self),
+            timeout
           ).asInstanceOf[GenericTerm]
       }
     }
   }
 
-  override def ask(ref: IMessageSource, message: Any)(implicit executionContext: ExecutionContext): GenericTerm =  {
+  override def ask(ref: IMessageSource, message: Any,timeout: IntTerm)(implicit executionContext: ExecutionContext): GenericTerm =  {
     ref match {
       case dest: AkkaMessageSource =>
         sendAsk(dest,
           message,
-          AkkaMessageSource(executionContext.agent.self)
+          AkkaMessageSource(executionContext.agent.self),
+          timeout
         ).asInstanceOf[GenericTerm]
       case _ =>
         throw new RuntimeException("Message Source Unknown")
     }
   }
 
+  override def ask(destName: String, message: Any, response: GenericTerm, timeout: IntTerm)(implicit executionContext: ExecutionContext): BooleanTerm =
+    {
+      val answer = this.ask(destName,message,timeout)
+      response.unify(answer)
+    }
+
+  override def ask(ref: IMessageSource, message: Any, response: GenericTerm, timeout: IntTerm )(implicit executionContext: ExecutionContext): BooleanTerm =
+    {
+      val answer = this.ask(ref, message,timeout)
+      response.unify(answer)
+    }
+
+  override def ask(destName: String, message: Any, response: GenericTerm)(implicit executionContext: ExecutionContext): BooleanTerm = ask(destName,message,response,IntTerm(5000))
+
+  override def ask(ref: IMessageSource, message: Any, response: GenericTerm)(implicit executionContext: ExecutionContext): BooleanTerm = ask(ref,message,response,IntTerm(5000))
+
+  override def ask(destName: String, message: Any)(implicit executionContext: ExecutionContext): GenericTerm = ask(destName,message,IntTerm(5000))
+
+  override def ask(ref: IMessageSource, message: Any)(implicit executionContext: ExecutionContext): GenericTerm = ask(ref,message,IntTerm(5000))
+
+
   override def respond(message: Any)(implicit executionContext: ExecutionContext):Any = {
     executionContext.src match {
       case dest: AkkaMessageSource =>
-        sendBelief(dest,
+        sendResponse(dest,
           message,
           AkkaMessageSource(executionContext.agent.self)
         )
     }
   }
 
-  override def ask(destName: String, message: Any, response: GenericTerm)(implicit executionContext: ExecutionContext): BooleanTerm =
-    {
-      val answer = this.ask(destName,message)
-      response.unify(answer)
-    }
-
-  override def ask(ref: IMessageSource, message: Any, response: GenericTerm)(implicit executionContext: ExecutionContext): BooleanTerm =
-    {
-      val answer = this.ask(ref, message)
-      response.unify(answer)
-    }
 }

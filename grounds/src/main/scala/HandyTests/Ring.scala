@@ -3,18 +3,23 @@ package HandyTests
 import akka.actor.typed
 import akka.actor.typed.{ActorRefResolver, ActorSystem}
 import bb.expstyla.exp.StructTerm
+import bb.serialize.terms.JsonTermDeserializer
+import com.google.gson.Gson
+import infrastructure.access.AgentRegistry.deserializer
 import infrastructure.{AgentRequest, AgentRequestMessage, AkkaMessageSource, GoalMessage, IMessage, MAS}
 
 import scala.language.implicitConversions
 
 object Ring {
 
-
+  val deserializer = JsonTermDeserializer(new Gson())
 
   def main(args: Array[String]): Unit = {
 
         import org.apache.log4j.BasicConfigurator
         BasicConfigurator.configure()
+
+
 
     val mas = MAS()
     val system: ActorSystem[IMessage] = typed.ActorSystem(mas(), "MAS")

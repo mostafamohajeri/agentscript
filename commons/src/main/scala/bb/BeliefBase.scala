@@ -30,10 +30,10 @@
 ////    println("asserted " + term)
 //  }
 //
-//  def assert(serialize.terms :List[Term]): Unit = {
-//    val clauses : Struct = Struct.list(serialize.terms.asJava)
-//    serialize.terms.foreach(t => assert(t))
-////    serialize.terms.foreach(term => theoryManager.assertA(term.asInstanceOf[Struct],true,null,false))
+//  def assert(bb.serialize.terms :List[Term]): Unit = {
+//    val clauses : Struct = Struct.list(bb.serialize.terms.asJava)
+//    bb.serialize.terms.foreach(t => assert(t))
+////    bb.serialize.terms.foreach(term => theoryManager.assertA(term.asInstanceOf[Struct],true,null,false))
 ////    engine.addTheory(Theory.fromPrologList(clauses))
 //  }
 //

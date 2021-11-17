@@ -36,11 +36,7 @@ class BeliefBaseStyla() extends IBeliefBase[GenericTerm] {
 
   override def assertOne(term: GenericTerm): Boolean =
     this.synchronized {
-      val assert = new assert()
-      assert.args = Array(term.getTermValue)
-      logicEngine.setGoal(assert)
-      val answer = logicEngine.askAnswer()
-      true
+      logicEngine.db.pushIfNotExists(List(term.getTermValue))
     }
 
   override def assert(terms: List[GenericTerm]): Unit =
@@ -49,12 +45,9 @@ class BeliefBaseStyla() extends IBeliefBase[GenericTerm] {
     }
 
   override def retractOne(term: GenericTerm): Boolean =
-    this.synchronized {
-      val retractAll = new retractall()
-      retractAll.args = Array(term.getTermValue)
-      logicEngine.setGoal(retractAll)
-      logicEngine.askAnswer()
-      true
+    this.synchronized
+    {
+      logicEngine.db.delIfExists(term.getTermValue)
     }
 
   override def query(term: GenericTerm): QueryResponse =
@@ -64,7 +57,6 @@ class BeliefBaseStyla() extends IBeliefBase[GenericTerm] {
       logicEngine.set_query(List(term.getTermValue))
 
       val answer = logicEngine.askAnswer()
-      println(logicEngine.query)
       if (answer == null) {
 
         QueryResponse(result = false, Map[String, GenericTerm]())

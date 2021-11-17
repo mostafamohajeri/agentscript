@@ -1,4 +1,4 @@
-package serialize.terms
+package bb.serialize.terms
 
 import bb.expstyla.exp._
 import com.google.gson.{Gson, JsonArray, JsonElement, JsonObject}

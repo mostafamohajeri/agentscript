@@ -33,11 +33,10 @@ class AgentRoutes(registry: ActorRef[AgentRegistry.Command])(implicit val system
   val routes: Route =
     pathPrefix("achieve") {
       concat(
-        //#users-get-delete
         pathEnd {
           concat(post {
-            entity(as[PerformCommand]) { user =>
-              onSuccess(achieveCommand(user)) { performed =>
+            entity(as[PerformCommand]) { command =>
+              onSuccess(achieveCommand(command)) { performed =>
                 complete((StatusCodes.Created, performed))
               }
             }

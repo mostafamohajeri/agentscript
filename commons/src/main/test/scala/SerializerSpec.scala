@@ -3,7 +3,7 @@ import com.google.gson.Gson
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers._
-import serialize.terms.JsonTermSerializer
+import bb.serialize.terms.JsonTermSerializer
 
 class SerializerSpec extends AnyWordSpec with BeforeAndAfterAll {
 
@@ -26,11 +26,11 @@ class SerializerSpec extends AnyWordSpec with BeforeAndAfterAll {
     }
 
     "has multiple/nested terms" should {
-      "serialize the terms" in {
+      "bb.serialize the terms" in {
         assert(serializer.serialize(StructTerm("fun", Seq(BooleanTerm(true), StringTerm("term_2")))).getAsJsonObject.get("terms").getAsJsonArray.size() == 2)
       }
 
-      "serialize the terms recursively" in {
+      "bb.serialize the terms recursively" in {
         assert(serializer.serialize(StructTerm("fun", Seq(StructTerm("fun_inner", Seq(BooleanTerm(true)))))).getAsJsonObject.get("terms").getAsJsonArray.get(0).getAsJsonObject.get("functor").getAsString equals "fun_inner")
       }
     }

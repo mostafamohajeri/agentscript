@@ -1,8 +1,8 @@
-// package serialize.terms
+// package bb.serialize.terms
 
 // import bb.expstyla.exp._
 // import com.google.gson.{Gson, JsonElement}
-// import serialize.DeserializeException
+// import bb.serialize.DeserializeException
 // import 
 // import scala.collection.mutable.ListBuffer
 
