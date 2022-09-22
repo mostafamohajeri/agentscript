@@ -30,7 +30,7 @@ ThisBuild / homepage := Some(url("https://github.com/mostafamohajeri/agentscript
 ThisBuild / organization := "io.github.mostafamohajeri"
 ThisBuild / organizationName := "CCI Group"
 ThisBuild / organizationHomepage := Some(url("https://cci-research.nl/"))
-ThisBuild / version      := "0.45"
+ThisBuild / version      := "0.46"
 ThisBuild / scalaVersion := "2.13.7"
 Test / testOptions  += Tests.Argument("-oD")
 
