@@ -1,23 +1,25 @@
 package bb
 
 import bb.expstyla.exp.{GenericTerm, StructTerm}
-import infrastructure.{IAgent, QueryResponse}
+import infrastructure.{ExecutionContext, IAgent, QueryResponse}
 
 abstract class IBeliefBase[T <: GenericTerm] {
 
-  def assertOne(term: T): Boolean
+  def assertOne(term: T) (implicit executionContext: ExecutionContext) : Boolean
 
-  def query(term: T): QueryResponse
+  def query(term: T) (implicit executionContext: ExecutionContext) : QueryResponse
 
-  def bufferedQuery(term: T): Iterator[QueryResponse]
+  def bufferedQuery(term: T) (implicit executionContext: ExecutionContext) : Iterator[QueryResponse]
 
-  def query(): QueryResponse
+  def query()  : QueryResponse
 
-  def matchTerms(term1: T, term2: T): QueryResponse
+  def matchTerms(term1: T, term2: T) : QueryResponse
 
-  def matchTerms(): QueryResponse
+  def matchTerms() : QueryResponse
 
-  def retractOne(term: T): Boolean
+  def retractOne(term: T) (implicit executionContext: ExecutionContext) : Boolean
 
-  def assert(terms: List[T]): Unit
+  def assert(terms: List[T]) (implicit executionContext: ExecutionContext) : Unit
+
+  def forceAssertOne(term: GenericTerm) : Unit
 }

@@ -34,6 +34,16 @@ class DefaultCommunications(logger: CommunicationLogger = SinkComminicationLogge
     true
   }
 
+  def sendUnBelief(dest: IMessageSource, message: Any, src: IMessageSource): Any = {
+    dest.asInstanceOf[AkkaMessageSource].address() ! UnBeliefMessage(
+      message,
+      src
+    )
+    logger.logUnBeliefMessage(src.name(),message.toString,dest.name())
+    true
+  }
+
+
   def sendResponse(dest: IMessageSource, message: Any, src: IMessageSource): Any = {
     dest.asInstanceOf[AkkaMessageSource].address() ! BeliefMessage(
       message,
@@ -60,11 +70,6 @@ class DefaultCommunications(logger: CommunicationLogger = SinkComminicationLogge
 
     logger.logAskMessage(src.name(),message.toString,dest.name())
 
-
-    //    result.onComplete {
-    //      case Success(BeliefMessage(c,s)) => c.asInstanceOf[GenericTerm]
-    //      case Failure(_) => BooleanTerm(false)
-    //    }
 
     try {
       val response = Await.result(result, timeout.duration).asInstanceOf[BeliefMessage].content.asInstanceOf[GenericTerm]
@@ -163,6 +168,8 @@ class DefaultCommunications(logger: CommunicationLogger = SinkComminicationLogge
     }
   }
 
+
+
   override def broadcast_inform(message: Any)(implicit executionContext: ExecutionContext): Any =
     executionContext.yellowPages.getAll().par
       .filter(a => executionContext.name != a._1 && !a._1.equals("__MAS"))
@@ -203,6 +210,36 @@ class DefaultCommunications(logger: CommunicationLogger = SinkComminicationLogge
             AkkaMessageSource(executionContext.agent.self),
             timeout
           ).asInstanceOf[GenericTerm]
+      }
+    }
+  }
+
+
+  override def un_inform(ref: IMessageSource, message: Any)
+                     (implicit executionContext: ExecutionContext)
+  : Any = {
+    ref match {
+      case dest: AkkaMessageSource =>
+        sendUnBelief(dest,
+          message,
+          AkkaMessageSource(executionContext.agent.self)
+        )
+      case _ =>
+        throw new RuntimeException("Message Source Unknown")
+    }
+  }
+
+  override def un_inform(destName: String, message: Any)(implicit executionContext: ExecutionContext): Any = {
+    val destination = executionContext.yellowPages.getAgent(destName.toString)
+    if (destination.isEmpty)
+      println(f"$destName Not Found")
+    else {
+      destination.get match {
+        case dest: AkkaMessageSource =>
+          sendUnBelief(dest,
+            message,
+            AkkaMessageSource(executionContext.agent.self)
+          )
       }
     }
   }

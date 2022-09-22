@@ -22,13 +22,14 @@ case class MAS(val yellowPages: YellowPages = YellowPages()) {
         Behaviors.receive { (context, message) =>
           message match {
             case AgentRequestMessage(types, respondTo) =>
+//              println("got request for" + types)
               types foreach {
                 case AgentRequest(agentType, name_pattern, count) =>
                   agentsNotInitialized += count
                   _allReady = false;
                   for (a <- 1 to count) {
                     val name = if (count == 1) name_pattern else name_pattern + a
-                    val ref  = context.spawn(agentType.apply(name, yellowPages , context.self), name)
+                    val ref  = context.spawn(agentType.apply(name, yellowPages , context.self,AkkaMessageSource(respondTo)), name)
                     agentsNotStarted = agentsNotStarted :+ ref
                     yellowPages.putOne(AkkaMessageSource(ref))
                   }

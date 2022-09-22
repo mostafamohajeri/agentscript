@@ -1,7 +1,11 @@
 name(#executionContext.name).
 v(1).
 
-+!read(W) : name(A) => #println(A+W); #coms.achieve(#executionContext.src,#asString(W)).
+@atomic @preferences
++!read(W)=> #coms.achieve(#executionContext.src,#asString(W)).
+
+
+-hello(X) => #println(X).
 
 +!do : name(M) =>
     #std.terms.unify(v(X),v(1));
@@ -15,6 +19,8 @@ v(1).
 
 +!test : newinfo(X) => #println(ohoh(X)).
 
-+?hello(X) : v(X) => +v(X); M = v(X); #coms.respond(hello(X)).
++!test => #println(ohoh(X)).
+
+
 
 

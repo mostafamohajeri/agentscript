@@ -23,6 +23,13 @@ trait AgentCommunicationLayer {
             (implicit executionContext: ExecutionContext)
   : Any
 
+  def un_inform(destName: String, message: Any)(implicit executionContext: ExecutionContext): Any
+
+  def un_inform(ref: IMessageSource, message: Any)
+            (implicit executionContext: ExecutionContext)
+  : Any
+
+
   def ask(destName: String, message: Any, response:GenericTerm, timeout: IntTerm)(implicit executionContext: ExecutionContext): BooleanTerm
 
   def ask(ref: IMessageSource, message: Any, response:GenericTerm, timeout: IntTerm)

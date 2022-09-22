@@ -30,11 +30,13 @@ case class StructTerm(functor: String, terms: Seq[GenericTerm] = Seq()) extends 
 
   override def getStringValue: String =
     functor + (if (terms.nonEmpty) ("(" + terms.map(t => t.getStringValue).mkString(",") + ")")
-               else "")
+    else "")
 
   override def getBooleanValue: Boolean = throw new TypeException()
 
   override def getTermValue: Term = struct
+
+
 
   override def getVarValue: Var = throw new TypeException()
 
@@ -42,13 +44,19 @@ case class StructTerm(functor: String, terms: Seq[GenericTerm] = Seq()) extends 
 
   override def toString: String = getStringValue
 
+  override def isClause: Boolean = terms.size == 2 && functor.equals(":-")
+
+  def asTermList : List[Term] = List(terms.head.getTermValue, terms(1).getTermValue)
 
   def struct: Term = {
-    if (terms.size == 0)
-      new Const(functor)
-    else {
+    if (terms.isEmpty) {
       functor match {
-        case ":-"   => Clause.build(terms(0).getTermValue, terms(1).getTermValue)
+        case "cut" => prolog.builtins.cut(new Var())
+        case _ => new Const(functor)
+      }
+
+    } else {
+      functor match {
         case ","   => Conj.build(terms(0).getTermValue, terms(1).getTermValue)
         case ";"   => Disj.build(terms(0).getTermValue, terms(1).getTermValue)
         case "not" => new Fun("\\+", terms.map(t => t.getTermValue).toArray)

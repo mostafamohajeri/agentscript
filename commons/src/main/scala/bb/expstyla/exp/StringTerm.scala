@@ -5,6 +5,8 @@ import prolog.terms.{Const, Real, Term, Var}
 case class StringTerm(value: String) extends GenericTerm {
   override def getIntValue: Int = value.toInt
 
+  override def ref: GenericTerm = super.ref
+
   override def getDoubleValue: Double = value.toDouble
 
   override def getStringValue: String = value

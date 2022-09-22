@@ -1,5 +1,5 @@
 import akka.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
-import bb.expstyla.exp.StructTerm
+import bb.expstyla.exp.{IntTerm, ListTerm, StructTerm}
 import infrastructure._
 import org.scalatest.wordspec.AnyWordSpecLike
 
@@ -9,11 +9,12 @@ class AgentSpec extends ScalaTestWithActorTestKit with AnyWordSpecLike {
 
   override def beforeAll(): Unit = {
     val m = testKit.spawn(mas(), "MAS")
+    val prob = testKit.createTestProbe[IMessage]()
     m ! AgentRequestMessage(
       Seq(
 //        AgentRequest(asl.talker.Agent, "talker", 1),
         AgentRequest(new asl.greeter().agentBuilder, "greeter", 1),
-      ),null)
+      ),prob.ref)
     Thread.sleep(3000)
   }
 //
@@ -70,6 +71,18 @@ class AgentSpec extends ScalaTestWithActorTestKit with AnyWordSpecLike {
       val prob = testKit.createTestProbe[IMessage]()
       mas.yellowPages.getAgent("greeter").get.asInstanceOf[AkkaMessageSource].address()  ! GoalMessage(StructTerm("hello"),AkkaMessageSource(prob.ref))
       assert(prob.receiveMessage().asInstanceOf[GoalMessage].content.toString  equals  "greetings")
+    }
+
+    "loop a list" in {
+      val prob = testKit.createTestProbe[IMessage]()
+      mas.yellowPages.getAgent("greeter").get.asInstanceOf[AkkaMessageSource].address()  ! GoalMessage(StructTerm("loop_this",Seq(ListTerm(Seq(IntTerm(1),IntTerm(4))))),AkkaMessageSource(prob.ref))
+//      assert(prob.receiveMessage().asInstanceOf[GoalMessage].content.toString  equals  "greetings")
+    }
+
+    "loop" in {
+      val prob = testKit.createTestProbe[IMessage]()
+      mas.yellowPages.getAgent("greeter").get.asInstanceOf[AkkaMessageSource].address()  ! GoalMessage(StructTerm("loop",Seq()),AkkaMessageSource(prob.ref))
+      //      assert(prob.receiveMessage().asInstanceOf[GoalMessage].content.toString  equals  "greetings")
     }
   }
 

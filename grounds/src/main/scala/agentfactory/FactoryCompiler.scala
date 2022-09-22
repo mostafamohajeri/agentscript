@@ -1,28 +1,37 @@
 package agentfactory
+import infrastructure.{IAgent, IntentionalAgentFactory}
+
 import scala.reflect.runtime.universe
 import scala.tools.reflect.ToolBox
 
 object FactoryCompiler {
 
-  def createFactory(code: String, name: String): IFactory = {
+  def createFactory(code: String, name: String): IAgent = {
     val tb   = universe.runtimeMirror(this.getClass.getClassLoader).mkToolBox()
     val tree = tb.parse(f"""
-         | import agentfactory.IFactory
+         | import infrastructure.IntentionalAgentFactory
          | import infrastructure.IAgent
-         |
-         | class Factory_$name extends IFactory{
-         |
-         | override def getAgent() = this.$name.Agent
          |
          | $code
          |
-         | }
-         |
-         | new Factory_$name()
+         | new $name().agentBuilder
          |
     """.stripMargin)
 
-    tb.compile(tree)().asInstanceOf[IFactory]
+//    val tree = tb.parse(  """
+//                            |import agentfactory.IFactory
+//                            |import infrastructure.IAgent
+//                            |class AgentHelloWorld extends IFactory{
+//                            |  def getAgent(): asl.asker.agentBuilder
+//                            |}
+//                            |
+//                            |
+//                            |new AgentHelloWorld()
+//                            |""".stripMargin)
+
+//    println(tree)
+
+    tb.compile(tree)().asInstanceOf[IAgent]
   }
 
 }

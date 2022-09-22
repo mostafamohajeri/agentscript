@@ -1,5 +1,5 @@
 package agentfactory
-import infrastructure.IAgent
+import infrastructure.{IAgent, IntentionalAgentFactory}
 import translation.Translator
 
 object FactoryManager {
@@ -11,10 +11,10 @@ object FactoryManager {
 
     println(f"creating agent $name ...")
 
-    //println(code)
+//    println(code)
 
-    val factory: IFactory = FactoryCompiler.createFactory(code, name)
-    factory.getAgent()
+    val factory: IAgent = FactoryCompiler.createFactory(code, name)
+    factory
   }
 
 }

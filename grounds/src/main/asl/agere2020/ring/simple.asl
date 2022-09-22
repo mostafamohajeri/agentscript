@@ -1,0 +1,10 @@
+!init.
+
++!init =>
+    #println("hello").
+
+
+
+
+
+

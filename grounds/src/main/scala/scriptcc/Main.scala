@@ -69,7 +69,7 @@ object Main {
       )
       .toSeq
 
-    println(requests)
+//    println(requests)
 
 //
 //    vars +=+ ("B" -> IntTerm(10))
@@ -146,7 +146,7 @@ object Main {
 //    )
 //
     system ! AgentRequestMessage(
-      requests, null
+      requests, system.ref
     )
 
   }

@@ -7,11 +7,11 @@
     +neighbor(N).
 
 +!token(0) =>
-    #coms.achieve("master1",done).
+    #coms.achieve("master1",done)
+  .
 
 +!token(T) : neighbor(N) =>
       #coms.achieve(N,token(T - 1))
-
   .
 
 +!token(T) : not (neighbor(N)) =>

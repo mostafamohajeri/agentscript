@@ -45,7 +45,7 @@ object Test1 {
         //        AgentRequest(new ring.master().agentBuilder, "master1", 1),
         //        AgentRequest(new ring.thread().agentBuilder, "thread", 16),
         AgentRequest(new ring.test().agentBuilder, "test", 1),
-        AgentRequest(new ring.scenario().agentBuilder, "scenario", 1),
+//        AgentRequest(new ring.scenario().agentBuilder, "scenario", 1),
       ),ref))
 
 

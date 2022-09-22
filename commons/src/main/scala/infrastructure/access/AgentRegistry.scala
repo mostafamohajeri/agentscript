@@ -41,7 +41,7 @@ object AgentRegistry {
             case Achieve(command, replyTo) =>
               try {
                 val t = deserializer.deserialize(command.command.toString()).asInstanceOf[StructTerm]
-                println(yellowPages.getAgent(command.src).get.asInstanceOf[AkkaMessageSource])
+//                println(yellowPages.getAgent(command.src).get.asInstanceOf[AkkaMessageSource])
                 replyTo ! ActionPerformed(
                   s"Command ${command.toString} created. and it was like ${t}"
                 )

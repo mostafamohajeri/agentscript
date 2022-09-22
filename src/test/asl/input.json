@@ -1,0 +1,14 @@
+{
+  "agents": [
+    {
+      "name" : "pinger",
+      "script_file" : "pinger.asl",
+      "number": 1
+    },
+    {
+      "name" : "ponger",
+      "script_file" : "ponger.asl",
+      "number": 1
+    }
+  ]
+}

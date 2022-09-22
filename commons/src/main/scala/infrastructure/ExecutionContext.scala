@@ -15,6 +15,8 @@ case class  ExecutionContext(
     yellowPages: IYellowPages,
     beliefBase: IBeliefBase[GenericTerm],
     logger: Logger,
+    goalParser: IAgentGoalParser,
+    parent: IMessageSource,
     intention: ActorContext[ISubGoalMessage],
     src: IMessageSource
 )
@@ -27,7 +29,9 @@ object ExecutionContext {
       yellowPages: IYellowPages,
       beliefBase: IBeliefBase[GenericTerm],
       logger: Logger,
-  ): ExecutionContext = {
+      goalParser: IAgentGoalParser,
+      parent: IMessageSource
+           ): ExecutionContext = {
     ExecutionContext(
       name,
       agentType,
@@ -35,6 +39,8 @@ object ExecutionContext {
       yellowPages,
       beliefBase,
       logger,
+      goalParser,
+      parent,
       null,
       null
     )
@@ -49,6 +55,8 @@ object ExecutionContext {
       name,
       agentType,
       agent,
+      null,
+      null,
       null,
       null,
       null,

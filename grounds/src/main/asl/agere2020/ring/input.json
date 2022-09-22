@@ -1,13 +1,8 @@
 {
   "agents": [
     {
-      "name" : "thread",
-      "script_file" : "thread.asl",
-      "number": 10
-    } ,
-    {
-      "name" : "master",
-      "script_file" : "master.asl",
+      "name" : "simple",
+      "script_file" : "simple.asl",
       "number": 1
     }
   ]

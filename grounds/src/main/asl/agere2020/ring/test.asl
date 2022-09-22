@@ -1,10 +1,10 @@
-
 a(1).
-!init("1").
-
-+!init(A) : a(N) => #println(#Integer.valueOf(A)).
+a(2).
+!init(A).
 
 +!init(A)  => #println(#Integer.valueOf(A)).
+
++a(Z) => #println(#Integer.valueOf(A)).
 
 
 

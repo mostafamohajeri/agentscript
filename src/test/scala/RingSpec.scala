@@ -2,6 +2,7 @@ import akka.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
 import bb.expstyla.exp.StructTerm
 import infrastructure._
 import org.scalatest.wordspec.AnyWordSpecLike
+import scriptcc.Configure
 
 class RingSpec extends ScalaTestWithActorTestKit with AnyWordSpecLike {
 
@@ -9,11 +10,16 @@ class RingSpec extends ScalaTestWithActorTestKit with AnyWordSpecLike {
 
   override def beforeAll(): Unit = {
     val m = testKit.spawn(mas(), "MAS")
+    val prob = testKit.createTestProbe[IMessage]()
+    val c = Configure
+    val r = c.create("/home/msotafa/IdeaProjects/actor-playgrounds/src/test/asl/input.json")
     m ! AgentRequestMessage(
       Seq(
+//        r.head
 //        AgentRequest(asl.talker.Agent, "talker", 1),
-        AgentRequest(new asl.master().agentBuilder, "master1", 1),
-      ),null)
+        AgentRequest((new asl.master()).agentBuilder, "master1", 1),
+//        AgentRequest(new asl.simple().agentBuilder,"simple",1)
+      ),prob.ref)
     Thread.sleep(3000)
   }
 //

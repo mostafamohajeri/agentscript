@@ -1,24 +1,12 @@
 import akka.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
-import asl.greeter
-import bb.expstyla.exp.{StringTerm, StructTerm}
+import asl.{ihl, processor}
+import bb.expstyla.exp.{StructTerm, VarTerm}
 import infrastructure._
 import org.scalatest.wordspec.AnyWordSpecLike
-import std.{AgentCommunicationLayer, DefaultCommunications}
 
-class AgentSpec11 extends ScalaTestWithActorTestKit with AnyWordSpecLike {
+class ProcessorSpec extends ScalaTestWithActorTestKit with AnyWordSpecLike {
 
   val mas = MAS()
-
-  import org.apache.log4j.BasicConfigurator
-
-  BasicConfigurator.configure()
-
-  object MockedComsLayer extends DefaultCommunications {
-    override def achieve(destName: String, message: Any)(implicit executionContext: ExecutionContext): Any = {
-      print("a message was sent")
-      super.achieve(destName, message)
-    }
-  }
 
   override def beforeAll(): Unit = {
     val m = testKit.spawn(mas(), "MAS")
@@ -26,7 +14,7 @@ class AgentSpec11 extends ScalaTestWithActorTestKit with AnyWordSpecLike {
     m ! AgentRequestMessage(
       Seq(
 //        AgentRequest(asl.talker.Agent, "talker", 1),
-        AgentRequest(new greeter(coms = MockedComsLayer).agentBuilder, "greeter", 1),
+        AgentRequest(new processor().agentBuilder, "processor", 1),
       ),prob.ref)
     Thread.sleep(3000)
   }
@@ -52,15 +40,20 @@ class AgentSpec11 extends ScalaTestWithActorTestKit with AnyWordSpecLike {
 
   //  }
 
-   "respond with a IntentionErrorMessage if it has no plan for it" in {
+   "target" in {
      val prob = testKit.createTestProbe[IMessage]()
 
-     mas.yellowPages.getAgent("greeter").get.asInstanceOf[AkkaMessageSource].address() ! GoalMessage(StructTerm("something_else",Seq()),AkkaMessageSource(prob.ref))
+     mas.yellowPages.getAgent("processor").get.asInstanceOf[AkkaMessageSource].address() !
+       GoalMessage(StructTerm("process",Seq(StructTerm("data"),StructTerm("meta",Seq(StructTerm("purpose",Seq(StructTerm("spy"))))))),AkkaMessageSource(prob.ref))
 
-    val message = prob.receiveMessage()
+   }
 
-     assert(message.isInstanceOf[IntentionErrorMessage])
-     assert(message.asInstanceOf[IntentionErrorMessage].cause equals NoPlanMessage())
+
+   "print" in {
+     val prob = testKit.createTestProbe[IMessage]()
+
+     mas.yellowPages.getAgent("processor").get.asInstanceOf[AkkaMessageSource].address() ! GoalMessage(StructTerm("get_all_most_preferred_poop",Seq()),AkkaMessageSource(prob.ref))
+
    }
 
   //  "send a GoalMessage if the plan says so" in {
@@ -77,14 +70,6 @@ class AgentSpec11 extends ScalaTestWithActorTestKit with AnyWordSpecLike {
   //  }
 
 
- }
-
-  "A greeter agent" should {
-    "say greetings in response to a hello" in {
-      val prob = testKit.createTestProbe[IMessage]()
-      mas.yellowPages.getAgent("greeter").get.asInstanceOf[AkkaMessageSource].address()  ! GoalMessage(StructTerm("hello",Seq()),AkkaMessageSource(prob.ref))
-      assert(prob.receiveMessage().asInstanceOf[GoalMessage].content.toString  contains  "greetings")
-    }
   }
 
   override def afterAll(): Unit = testKit.shutdownTestKit()

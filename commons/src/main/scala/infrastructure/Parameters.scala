@@ -2,4 +2,4 @@ package infrastructure
 
 import bb.expstyla.exp.GenericTerm
 
-case class Parameters(l_params: List[GenericTerm]) extends IParams {}
+case class Parameters(var l_params: List[GenericTerm]) extends IParams {}

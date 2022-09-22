@@ -19,7 +19,14 @@ object BeliefUpdateAction extends IGoal {
           if(subGoal.isDefined)
             executionContext.agent.self ! subGoal.get
         }
-      case "-"  => executionContext.beliefBase.retractOne(params.v2.asInstanceOf[StructTerm])
+      case "-"  => if(executionContext.beliefBase.retractOne(params.v2.asInstanceOf[StructTerm])) {
+        val subGoal = goalParser.create_unbelief_message(
+          params.v2.asInstanceOf[StructTerm],
+          AkkaMessageSource(executionContext.agent.self)
+        )
+        if(subGoal.isDefined)
+          executionContext.agent.self ! subGoal.get
+      }
       case "-+" => throw new RuntimeException("not implemented")
     }
   }

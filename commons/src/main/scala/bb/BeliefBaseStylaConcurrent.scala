@@ -1,9 +1,8 @@
 package bb
 
 import java.util.concurrent.ArrayBlockingQueue
-
-import bb.expstyla.exp.GenericTerm
-import infrastructure.QueryResponse
+import bb.expstyla.exp.{GenericTerm, StructTerm}
+import infrastructure.{ExecutionContext, QueryResponse}
 import prolog.LogicEngine
 import prolog.builtins.{assert, retractall, true_}
 import prolog.fluents.DataBase
@@ -12,6 +11,7 @@ import prolog.terms.{Clause, Conj, Trail}
 import scala.collection.mutable.ListBuffer
 import scala.language.postfixOps
 
+@Deprecated
 class BeliefBaseStylaConcurrent() extends IBeliefBase[GenericTerm] {
 
   val db = new DataBase(null)
@@ -22,25 +22,32 @@ class BeliefBaseStylaConcurrent() extends IBeliefBase[GenericTerm] {
     a.put(new LogicEngine(db))
   }
 
-  override def assertOne(term: GenericTerm): Boolean =
+  override def forceAssertOne(term: GenericTerm): Unit =
+    this.synchronized {
+      if(!term.isClause)
+        db.add(List(term.getTermValue))
+      else
+        db.add(term.asInstanceOf[StructTerm].asTermList)
+    }
+
+  override def assertOne(term: GenericTerm) (implicit executionContext: ExecutionContext) : Boolean =
     this.synchronized
     {
       db.pushIfNotExists(List(term.getTermValue))
     }
 
-  override def assert(terms: List[GenericTerm]): Unit =
-    this.synchronized
-    {
-      terms.foreach(t => assertOne(t))
+  override def assert(terms: List[GenericTerm]) (implicit executionContext: ExecutionContext) : Unit =
+    this.synchronized {
+      terms.foreach(t => forceAssertOne(t))
     }
 
-  override def retractOne(term: GenericTerm): Boolean =
+  override def retractOne(term: GenericTerm) (implicit executionContext: ExecutionContext) : Boolean =
     this.synchronized
     {
       db.delIfExists(term.getTermValue)
     }
 
-  override def query(term: GenericTerm): QueryResponse =
+  override def query(term: GenericTerm) (implicit executionContext: ExecutionContext) : QueryResponse =
 //    this.synchronized
     {
       val logicEngine = a.take()
@@ -60,7 +67,7 @@ class BeliefBaseStylaConcurrent() extends IBeliefBase[GenericTerm] {
       }
     }
 
-  override def bufferedQuery(term: GenericTerm): Iterator[QueryResponse] =
+  override def bufferedQuery(term: GenericTerm) (implicit executionContext: ExecutionContext) : Iterator[QueryResponse] =
 //    this.synchronized
     {
       val logicEngine = a.take()
@@ -84,7 +91,7 @@ class BeliefBaseStylaConcurrent() extends IBeliefBase[GenericTerm] {
       ret.iterator
     }
 
-  override def query(): QueryResponse = QueryResponse(result = true, Map[String, GenericTerm]())
+  override def query() : QueryResponse = QueryResponse(result = true, Map[String, GenericTerm]())
 
   override def matchTerms(term1: GenericTerm, term2: GenericTerm): QueryResponse = {
     val t1 = term1.getTermValue

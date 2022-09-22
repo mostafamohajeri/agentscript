@@ -14,13 +14,14 @@ class ConcurrencySpec extends ScalaTestWithActorTestKit with AnyWordSpecLike {
 
   override def beforeAll(): Unit = {
     val m = testKit.spawn(mas(), "MAS")
+    val prob = testKit.createTestProbe[IMessage]()
     m ! AgentRequestMessage(
       Seq(
 //        AgentRequest(asl.talker.Agent, "talker", 1),
         AgentRequest(new asl.simple_bb_access().agentBuilder, "greeter", 1),
         AgentRequest(new asl.asker().agentBuilder, "asker", 1),
         AgentRequest(new asl.responder().agentBuilder, "responder", 1),
-      ),null)
+      ),prob.ref)
     Thread.sleep(3000)
 //    while(!mas.allReady) Thread.sleep(1000)
   }
