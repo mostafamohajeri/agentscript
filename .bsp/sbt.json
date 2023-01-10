@@ -1,1 +1,1 @@
-{"name":"sbt","version":"1.4.5","bspVersion":"2.0.0-M5","languages":["scala"],"argv":["/home/msotafa/graalvm-ce-java11-linux-amd64-20.0.0/graalvm-ce-java11-20.0.0/bin/java","-Xms100m","-Xmx100m","-classpath","/usr/share/sbt/bin/sbt-launch.jar","xsbt.boot.Boot","-bsp"]}
+{"name":"sbt","version":"1.5.5","bspVersion":"2.0.0-M5","languages":["scala"],"argv":["/home/msotafa/graalvm-ce-java11-21.3.0/bin/java","-Xms100m","-Xmx100m","-classpath","/usr/share/sbt/bin/sbt-launch.jar","xsbt.boot.Boot","-bsp","--sbt-launch-jar=/usr/share/sbt/bin/sbt-launch.jar"]}

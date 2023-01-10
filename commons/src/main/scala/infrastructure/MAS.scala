@@ -10,6 +10,10 @@ case class MAS(val yellowPages: YellowPages = YellowPages()) {
   private var _allReady = true
   def allReady : Boolean = _allReady
 
+  def applyDefaults() : Behavior[IMessage] = {
+    this.apply()
+  }
+
   def apply(name : String = "__MAS",createHTTPServer: Boolean = false, HTTPPort : Int = 8585): Behavior[IMessage] = {
     Behaviors.setup { context =>
       {
@@ -62,4 +66,8 @@ case class MAS(val yellowPages: YellowPages = YellowPages()) {
       }
     }
   }
+}
+
+object MAS {
+  def build():MAS = new MAS()
 }
